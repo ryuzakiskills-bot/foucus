@@ -1,4 +1,5 @@
 import React from 'react';
+import Logo from './Logo';
 import { 
   LayoutDashboard, Timer as TimerIcon, CheckSquare, 
   BarChart3, MessageSquare, Settings, LogOut, Zap, Users
@@ -26,12 +27,7 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
     <>
       {/* Desktop Sidebar */}
       <div className="hidden md:flex w-64 h-full bg-slate-950 border-r border-white/5 flex-col p-4 gap-8">
-        <div className="flex items-center gap-3 px-2">
-          <div className="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/30">
-            <Zap className="w-6 h-6 fill-white" />
-          </div>
-          <span className="text-xl font-bold tracking-tight gradient-text">FocusFlow</span>
-        </div>
+        <Logo size="sm" className="px-2" />
 
         <nav className="flex-1 flex flex-col gap-2">
           {menuItems.map((item) => (

@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
 import Auth from './components/Auth';
+import Logo from './components/Logo';
 import { Task, FocusSession, ChatMessage } from './types';
 import { Zap, Plus } from 'lucide-react';
 import { cn } from './lib/utils';
@@ -145,9 +146,12 @@ export default function App() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
 
         <header className="h-16 border-b border-white/5 flex items-center justify-between px-4 md:px-8 z-10 shrink-0 bg-slate-950/50 backdrop-blur-xl">
-          <div className="flex flex-col">
-            <h1 className="text-sm font-medium text-slate-400 capitalize">{activeTab}</h1>
-            <p className="text-xs text-slate-500">Welcome back, Focus Master</p>
+          <div className="flex items-center gap-3">
+            <Logo size="sm" iconOnly className="md:hidden" />
+            <div className="flex flex-col">
+              <h1 className="text-sm font-medium text-slate-400 capitalize">{activeTab}</h1>
+              <p className="text-xs text-slate-500">Welcome back, Focus Master</p>
+            </div>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             <button 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import Logo from './Logo';
 import { 
   Zap, Brain, Target, Users, TrendingUp, Shield, 
   CheckCircle2, ArrowRight, Play, Star, Globe, Lock
@@ -16,12 +17,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-slate-950/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2 group cursor-pointer">
-            <div className="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:rotate-12 transition-transform">
-              <Zap className="w-6 h-6 text-white fill-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">FocusFlow</span>
-          </div>
+          <Logo size="md" />
           
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
@@ -279,10 +275,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
       <footer className="py-20 px-6 border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-2">
-              <Zap className="w-6 h-6 text-brand-500 fill-brand-500" />
-              <span className="text-xl font-bold">FocusFlow</span>
-            </div>
+            <Logo size="sm" />
             <p className="text-slate-500 text-sm leading-relaxed">
               Master your focus and win your day with the world's most advanced productivity platform.
             </p>
@@ -319,7 +312,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
         </div>
         
         <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-500 text-xs">
-          <p>© 2024 FocusFlow Inc. All rights reserved.</p>
+          <p>© 2024 Focus Inc. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <a href="#" className="hover:text-white transition-colors">Twitter</a>
             <a href="#" className="hover:text-white transition-colors">GitHub</a>

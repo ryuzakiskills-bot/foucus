@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import Logo from './Logo';
 import { Zap, Mail, Lock, ArrowRight, Github, Chrome, ShieldCheck } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -39,9 +40,7 @@ export default function Auth({ onLogin, onClose }: AuthProps) {
         className="relative w-full max-w-md glass-card p-10 flex flex-col gap-8 bg-slate-900/50 border-white/10 shadow-2xl"
       >
         <div className="flex flex-col items-center text-center gap-2">
-          <div className="w-12 h-12 bg-brand-500 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-500/20 mb-2">
-            <Zap className="w-7 h-7 text-white fill-white" />
-          </div>
+          <Logo size="md" iconOnly className="mb-2" />
           <h2 className="text-2xl font-bold tracking-tight">
             {isLogin ? 'Welcome back' : 'Create your account'}
           </h2>

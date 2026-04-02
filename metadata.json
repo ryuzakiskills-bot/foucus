@@ -1,5 +1,5 @@
 {
-  "name": "FocusFlow",
+  "name": "Focus",
   "description": "A high-performance social productivity platform for deep work, real-time collaboration, and progress tracking.",
   "requestFramePermissions": ["display-capture", "microphone"]
 }

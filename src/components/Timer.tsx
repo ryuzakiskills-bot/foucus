@@ -48,8 +48,11 @@ export default function Timer({ onSessionComplete }: TimerProps) {
   };
 
   const progress = (timeLeft / (mode === 'work' ? workDuration * 60 : breakDuration * 60)) * 100;
-  const strokeDasharray = 2 * Math.PI * 120;
-  const strokeDashoffset = strokeDasharray * (progress / 100);
+  const radius = 120;
+  const strokeDasharray = 2 * Math.PI * radius;
+  // Offset should be 0 when progress is 100% (full circle)
+  // and strokeDasharray when progress is 0% (empty circle)
+  const strokeDashoffset = strokeDasharray * (1 - progress / 100);
 
   const adjustDuration = (type: 'work' | 'break', amount: number) => {
     if (type === 'work') {
@@ -94,20 +97,23 @@ export default function Timer({ onSessionComplete }: TimerProps) {
 
       {/* Circular Progress & Timer */}
       <div className="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center">
-        <svg className="w-full h-full -rotate-90 transform drop-shadow-[0_0_15px_rgba(14,165,233,0.1)]">
+        <svg 
+          viewBox="0 0 280 280"
+          className="w-full h-full -rotate-90 transform drop-shadow-[0_0_15px_rgba(14,165,233,0.1)]"
+        >
           {/* Background Circle */}
           <circle
-            cx="50%"
-            cy="50%"
-            r="120"
+            cx="140"
+            cy="140"
+            r={radius}
             className="stroke-white/5 fill-none"
             strokeWidth="6"
           />
           {/* Progress Circle */}
           <motion.circle
-            cx="50%"
-            cy="50%"
-            r="120"
+            cx="140"
+            cy="140"
+            r={radius}
             className={cn(
               "fill-none transition-colors duration-1000",
               mode === 'work' ? "stroke-brand-500" : "stroke-indigo-400"
@@ -117,7 +123,7 @@ export default function Timer({ onSessionComplete }: TimerProps) {
             initial={{ strokeDashoffset: strokeDasharray }}
             animate={{ strokeDashoffset: strokeDashoffset }}
             strokeDasharray={strokeDasharray}
-            transition={{ duration: 1, ease: "linear" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           />
         </svg>
 

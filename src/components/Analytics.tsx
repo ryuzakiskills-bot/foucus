@@ -3,7 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   AreaChart, Area
 } from 'recharts';
-import { FocusSession } from '@/src/types';
+import { FocusSession } from '../types';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay } from 'date-fns';
 import { Zap, Clock, Target, TrendingUp } from 'lucide-react';
 

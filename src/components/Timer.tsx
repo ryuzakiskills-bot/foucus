@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Play, Pause, RotateCcw, Coffee, Brain, Settings, Plus, Minus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '@/src/lib/utils';
+import { cn } from '../lib/utils';
 
 interface TimerProps {
   onSessionComplete?: (type: 'work' | 'break', duration: number) => void;

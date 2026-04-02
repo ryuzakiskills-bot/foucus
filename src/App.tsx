@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import Sidebar from './components/Sidebar';
 import LandingPage from './components/LandingPage';
@@ -6,7 +6,7 @@ import Dashboard from './components/Dashboard';
 import Auth from './components/Auth';
 import Logo from './components/Logo';
 import { Task, FocusSession, ChatMessage } from './types';
-import { Zap, Plus } from 'lucide-react';
+import { Zap, Plus, AlertCircle, RefreshCcw } from 'lucide-react';
 import { cn } from './lib/utils';
 
 export default function App() {

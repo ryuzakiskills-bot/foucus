@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Send, User, Hash, Users, Search, MoreVertical, Paperclip, Smile } from 'lucide-react';
-import { ChatMessage } from '@/src/types';
-import { cn } from '@/src/lib/utils';
+import { ChatMessage } from '../types';
+import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface ChatRoomProps {

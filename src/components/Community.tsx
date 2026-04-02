@@ -6,7 +6,7 @@ import {
   Send, Image as ImageIcon, Paperclip, MessageSquare,
   User, Shield, Mail, ExternalLink, ChevronRight
 } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface Room {

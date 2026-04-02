@@ -1,11 +1,30 @@
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = process.env.GEMINI_API_KEY;
+let aiInstance: GoogleGenAI | null = null;
 
-export const ai = new GoogleGenAI({ apiKey });
+export function getAI() {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.warn("GEMINI_API_KEY is not set. AI features will be disabled.");
+      return null;
+    }
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+}
 
 export async function getFocusInsight(sessions: any[]) {
   try {
+    const ai = getAI();
+    if (!ai) {
+      return {
+        analysis: "You're building a solid foundation of deep work.",
+        advice: "Try to schedule your most complex tasks for your next session.",
+        quote: "Focus is the art of knowing what to ignore."
+      };
+    }
+
     const sessionData = sessions.slice(0, 10).map(s => ({
       type: s.type,
       duration: s.duration,

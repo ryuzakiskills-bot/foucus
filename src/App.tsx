@@ -158,7 +158,7 @@ export default function App() {
               <span className="hidden xs:inline">Quick Task</span>
             </button>
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/10">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+              <div className="w-2 h-2 bg-brand-400 rounded-full animate-pulse" />
               <span className="text-xs font-medium text-slate-300">Live Session</span>
             </div>
             <button 

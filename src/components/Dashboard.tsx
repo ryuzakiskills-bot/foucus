@@ -93,7 +93,7 @@ export default function Dashboard({
                     <Zap className="w-4 h-4 text-brand-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <span className="text-3xl font-bold">{totalFocusTime}m</span>
-                  <span className="text-xs text-emerald-400 flex items-center gap-1">
+                  <span className="text-xs text-brand-400 flex items-center gap-1">
                     <TrendingUp className="w-3 h-3" /> +12.5% <span className="text-slate-500 font-normal">vs last week</span>
                   </span>
                 </button>
@@ -103,7 +103,7 @@ export default function Dashboard({
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-slate-400 text-sm font-medium">Tasks Done</span>
-                    <Target className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+                    <Target className="w-4 h-4 text-brand-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <span className="text-3xl font-bold">{tasks.filter(t => t.completed).length}</span>
                   <span className="text-xs text-slate-500">Out of {tasks.length} total</span>
@@ -117,7 +117,7 @@ export default function Dashboard({
                     <Users className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
                   </div>
                   <span className="text-3xl font-bold">12</span>
-                  <span className="text-xs text-emerald-400">Active now</span>
+                  <span className="text-xs text-brand-400">Active now</span>
                 </button>
               </div>
 
@@ -166,7 +166,7 @@ export default function Dashboard({
                   {[
                     { icon: Flame, color: "text-orange-500", label: "5 Day Streak" },
                     { icon: Zap, color: "text-brand-400", label: "Deep Diver" },
-                    { icon: Target, color: "text-emerald-400", label: "Goal Crusher" }
+                    { icon: Target, color: "text-brand-400", label: "Goal Crusher" }
                   ].map((badge, i) => (
                     <div key={i} className="flex flex-col items-center gap-2 group cursor-help">
                       <div className={cn(
@@ -293,7 +293,7 @@ export default function Dashboard({
                     }, 2000);
                   }
                 }}
-                className="bg-brand-500 hover:bg-brand-600 disabled:bg-emerald-500 text-white font-semibold py-3 rounded-xl transition-all"
+                className="bg-brand-500 hover:bg-brand-600 disabled:bg-brand-500 text-white font-semibold py-3 rounded-xl transition-all"
               >
                 Save Changes
               </button>

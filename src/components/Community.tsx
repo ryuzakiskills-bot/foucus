@@ -202,7 +202,7 @@ export default function Community() {
               <div className="flex items-center gap-2">
                 <span className="text-[10px] uppercase tracking-widest text-slate-500">{activeRoom.type} Room</span>
                 <div className="w-1 h-1 rounded-full bg-slate-700" />
-                <span className="text-xs text-emerald-400">{activeRoom.participants} participant</span>
+                <span className="text-xs text-brand-400">{activeRoom.participants} participant</span>
               </div>
             </div>
           </div>
@@ -377,11 +377,11 @@ export default function Community() {
                     <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center font-bold text-sm">
                       Y
                     </div>
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-900 rounded-full" />
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-brand-500 border-2 border-slate-900 rounded-full" />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-bold">You</span>
-                    <span className="text-[10px] text-emerald-400 font-medium">Host</span>
+                    <span className="text-[10px] text-brand-400 font-medium">Host</span>
                   </div>
                 </div>
               </div>
@@ -400,7 +400,7 @@ export default function Community() {
                       </div>
                       <div className={cn(
                         "absolute bottom-0 right-0 w-3 h-3 border-2 border-slate-900 rounded-full",
-                        user.status === 'online' ? "bg-emerald-500" : 
+                        user.status === 'online' ? "bg-brand-500" : 
                         user.status === 'idle' ? "bg-amber-500" : "bg-slate-500"
                       )} />
                     </div>
@@ -707,7 +707,7 @@ export default function Community() {
                     +8
                   </div>
                 </div>
-                <span className="text-sm text-emerald-400 font-medium">12 people focusing now</span>
+                <span className="text-sm text-brand-400 font-medium">12 people focusing now</span>
               </div>
             </div>
 
@@ -735,7 +735,7 @@ export default function Community() {
                         onClick={() => setIsMuted(!isMuted)}
                         className={cn(
                           "w-16 h-16 rounded-full flex items-center justify-center transition-all cursor-pointer",
-                          isMuted ? "bg-rose-500/20 text-rose-400 border border-rose-500/30" : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                          isMuted ? "bg-rose-500/20 text-rose-400 border border-rose-500/30" : "bg-brand-500/20 text-brand-400 border border-brand-500/30"
                         )}
                       >
                         {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
@@ -801,7 +801,7 @@ export default function Community() {
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs text-slate-500">{group.members} members</span>
                     <div className="w-1 h-1 rounded-full bg-slate-700" />
-                    <span className="text-xs text-emerald-400 font-medium">{group.active} online</span>
+                    <span className="text-xs text-brand-400 font-medium">{group.active} online</span>
                   </div>
                 </div>
 
@@ -818,7 +818,7 @@ export default function Community() {
                   className={cn(
                     "w-full py-2 rounded-xl transition-all text-sm font-bold border",
                     joinedGroups.includes(group.id) 
-                      ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30" 
+                      ? "bg-brand-500/20 text-brand-400 border-brand-500/30 hover:bg-brand-500/30" 
                       : "bg-white/5 hover:bg-brand-500 hover:text-white border-white/10"
                   )}
                 >

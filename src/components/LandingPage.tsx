@@ -224,7 +224,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
               <ul className="flex flex-col gap-4">
                 {["3 sessions per day", "Basic analytics", "Community access", "Task management"].map((feat, i) => (
                   <li key={i} className="flex items-center gap-3 text-slate-300">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                    <CheckCircle2 className="w-5 h-5 text-brand-400" />
                     {feat}
                   </li>
                 ))}

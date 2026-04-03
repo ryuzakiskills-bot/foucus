@@ -14,7 +14,13 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
   
+  const showNotification = (msg: string) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 3000);
+  };
+
   const [user, setUser] = useState<any>(() => {
     const saved = localStorage.getItem('focusflow_user');
     return saved ? JSON.parse(saved) : null;
@@ -37,6 +43,12 @@ export default function App() {
     setUser(null);
     setIsLoggedIn(false);
     localStorage.removeItem('focusflow_user');
+  };
+
+  const handleInviteFriends = () => {
+    navigator.clipboard.writeText('https://focusflow.app/join/room123');
+    showNotification('Invite link copied to clipboard! 🔗');
+    setActiveTab('community');
   };
 
   const [tasks, setTasks] = useState<Task[]>(() => {
@@ -145,6 +157,7 @@ export default function App() {
           if (tab === 'tasks') setIsAddTaskOpen(true);
         }} 
         onLogout={handleLogout}
+        onInviteFriends={handleInviteFriends}
       />
       
       <main className="flex-1 relative overflow-hidden flex flex-col pb-16 md:pb-0">
@@ -168,10 +181,13 @@ export default function App() {
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">New Task</span>
             </button>
-            <div className="hidden sm:flex items-center gap-3 px-4 py-2 bg-white/5 rounded-full border border-white/10">
-              <div className="w-2 h-2 bg-brand-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(14,165,233,0.5)]" />
+            <button 
+              onClick={() => setActiveTab('focus')}
+              className="hidden sm:flex items-center gap-3 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full border border-white/10 transition-all cursor-pointer group"
+            >
+              <div className="w-2 h-2 bg-brand-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(14,165,233,0.5)] group-hover:scale-125 transition-transform" />
               <span className="text-xs font-bold text-slate-300 tracking-wide">Live Session</span>
-            </div>
+            </button>
             <button 
               onClick={() => setActiveTab('settings')}
               className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-brand-400 to-indigo-500 border-2 border-white/20 hover:scale-110 transition-transform shadow-lg flex items-center justify-center text-white font-bold text-xs md:text-sm" 
@@ -196,11 +212,27 @@ export default function App() {
               sendMessage={sendMessage}
               handleSessionComplete={handleSessionComplete}
               setIsAddTaskOpen={setIsAddTaskOpen}
+              onInviteFriends={handleInviteFriends}
               settings={settings}
               setSettings={setSettings}
             />
           </div>
         </div>
+
+        {/* Global Notification */}
+        <AnimatePresence>
+          {notification && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20, x: '-50%' }}
+              animate={{ opacity: 1, y: 0, x: '-50%' }}
+              exit={{ opacity: 0, y: 20, x: '-50%' }}
+              className="fixed bottom-20 md:bottom-8 left-1/2 z-[200] bg-brand-500 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold flex items-center gap-3 border border-white/20 backdrop-blur-xl"
+            >
+              <Zap className="w-5 h-5 text-yellow-300 fill-yellow-300" />
+              {notification}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Global Add Task Modal */}
         <AnimatePresence>

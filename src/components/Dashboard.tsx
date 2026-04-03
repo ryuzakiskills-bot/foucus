@@ -7,7 +7,7 @@ import Analytics from './Analytics';
 import Community from './Community';
 import AICoach from './AICoach';
 import { Task, FocusSession, ChatMessage } from '../types';
-import { Zap, Target, TrendingUp, Users, Brain, Plus, Flame, Trophy, Calendar } from 'lucide-react';
+import { Zap, Target, TrendingUp, Users, Brain, Plus, Flame, Trophy, Calendar, Share2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface DashboardProps {
@@ -23,6 +23,7 @@ interface DashboardProps {
   sendMessage: (text: string, type?: 'text' | 'image' | 'file', url?: string, fileName?: string) => void;
   handleSessionComplete: (type: 'work' | 'break', duration: number) => void;
   setIsAddTaskOpen: (open: boolean) => void;
+  onInviteFriends: () => void;
   settings: any;
   setSettings: (settings: any) => void;
 }
@@ -30,7 +31,7 @@ interface DashboardProps {
 export default function Dashboard({ 
   activeTab, setActiveTab, tasks, sessions, messages, 
   addTask, toggleTask, deleteTask, updateTask, sendMessage, 
-  handleSessionComplete, setIsAddTaskOpen, settings, setSettings 
+  handleSessionComplete, setIsAddTaskOpen, onInviteFriends, settings, setSettings 
 }: DashboardProps) {
 
   const totalFocusTime = sessions.filter(s => s.type === 'work').reduce((acc, s) => acc + s.duration, 0);
@@ -156,6 +157,30 @@ export default function Dashboard({
                   onDeleteTask={deleteTask} 
                   onUpdateTask={updateTask}
                 />
+              </div>
+
+              {/* Quick Actions */}
+              <div className="glass-card p-6 flex flex-col gap-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-brand-400" />
+                  Quick Actions
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <button 
+                    onClick={onInviteFriends}
+                    className="flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-brand-500/10 text-brand-400 hover:bg-brand-500/20 transition-all cursor-pointer group border border-brand-500/20"
+                  >
+                    <Share2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span className="font-bold text-sm">Invite Friends</span>
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('focus')}
+                    className="flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-all cursor-pointer group border border-indigo-500/20"
+                  >
+                    <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
+                    <span className="font-bold text-sm">Live Session</span>
+                  </button>
+                </div>
               </div>
 
               {/* Achievements */}

@@ -2,7 +2,7 @@ import React from 'react';
 import Logo from './Logo';
 import { 
   LayoutDashboard, Timer as TimerIcon, CheckSquare, 
-  BarChart3, MessageSquare, Settings, LogOut, Zap, Users
+  BarChart3, MessageSquare, Settings, LogOut, Zap, Users, Share2
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -10,9 +10,10 @@ interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onLogout: () => void;
+  onInviteFriends: () => void;
 }
 
-export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarProps) {
+export default function Sidebar({ activeTab, setActiveTab, onLogout, onInviteFriends }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'focus', icon: TimerIcon, label: 'Focus' },
@@ -51,6 +52,13 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
         </nav>
 
         <div className="flex flex-col gap-2 pt-4 border-t border-white/10">
+          <button 
+            onClick={onInviteFriends}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-500/10 text-brand-400 hover:bg-brand-500/20 transition-all cursor-pointer group mb-2"
+          >
+            <Share2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            <span className="font-bold text-sm">Invite Friends</span>
+          </button>
           <button 
             onClick={onLogout}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer"

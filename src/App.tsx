@@ -139,7 +139,7 @@ function AppContent() {
     setTasks(tasks.map(t => t.id === id ? { ...t, ...updates } : t));
   };
 
-  const handleSessionComplete = (type: 'work' | 'break', duration: number) => {
+  const handleSessionComplete = (type: 'work' | 'break', duration: number, mood?: string, notes?: string) => {
     const newSession: FocusSession = {
       id: Math.random().toString(36).substr(2, 9),
       duration,
@@ -148,6 +148,16 @@ function AppContent() {
       type
     };
     setSessions([newSession, ...sessions]);
+
+    if (type === 'work' && mood) {
+      addDailyLog({
+        date: new Date().toISOString().split('T')[0],
+        focusHours: duration / 60,
+        productivityScore: 100,
+        mood: mood as any,
+        notes: notes || ''
+      });
+    }
   };
 
   const addDailyLog = (logData: Omit<DailyLog, 'id' | 'userId' | 'createdAt'>) => {

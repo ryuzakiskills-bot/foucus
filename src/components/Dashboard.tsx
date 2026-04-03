@@ -29,7 +29,7 @@ interface DashboardProps {
   deleteTask: (id: string) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   sendMessage: (text: string, type?: 'text' | 'image' | 'file', url?: string, fileName?: string) => void;
-  handleSessionComplete: (type: 'work' | 'break', duration: number) => void;
+  handleSessionComplete: (type: 'work' | 'break', duration: number, mood?: string, notes?: string) => void;
   addDailyLog: (log: Omit<DailyLog, 'id' | 'userId' | 'createdAt'>) => void;
   addHabit: (name: string, targetDays: number) => void;
   deleteHabit: (id: string) => void;

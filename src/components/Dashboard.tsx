@@ -19,6 +19,7 @@ interface DashboardProps {
   addTask: (title: string, category: Task['category']) => void;
   toggleTask: (id: string) => void;
   deleteTask: (id: string) => void;
+  updateTask: (id: string, updates: Partial<Task>) => void;
   sendMessage: (text: string, type?: 'text' | 'image' | 'file', url?: string, fileName?: string) => void;
   handleSessionComplete: (type: 'work' | 'break', duration: number) => void;
   setIsAddTaskOpen: (open: boolean) => void;
@@ -28,7 +29,7 @@ interface DashboardProps {
 
 export default function Dashboard({ 
   activeTab, setActiveTab, tasks, sessions, messages, 
-  addTask, toggleTask, deleteTask, sendMessage, 
+  addTask, toggleTask, deleteTask, updateTask, sendMessage, 
   handleSessionComplete, setIsAddTaskOpen, settings, setSettings 
 }: DashboardProps) {
 
@@ -153,6 +154,7 @@ export default function Dashboard({
                   onAddTask={addTask} 
                   onToggleTask={toggleTask} 
                   onDeleteTask={deleteTask} 
+                  onUpdateTask={updateTask}
                 />
               </div>
 
@@ -201,6 +203,7 @@ export default function Dashboard({
                 onAddTask={addTask} 
                 onToggleTask={toggleTask} 
                 onDeleteTask={deleteTask} 
+                onUpdateTask={updateTask}
               />
             </div>
           </div>

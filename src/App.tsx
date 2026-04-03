@@ -93,6 +93,10 @@ export default function App() {
     setTasks(tasks.filter(t => t.id !== id));
   };
 
+  const updateTask = (id: string, updates: Partial<Task>) => {
+    setTasks(tasks.map(t => t.id === id ? { ...t, ...updates } : t));
+  };
+
   const handleSessionComplete = (type: 'work' | 'break', duration: number) => {
     const newSession: FocusSession = {
       id: Math.random().toString(36).substr(2, 9),
@@ -188,6 +192,7 @@ export default function App() {
               addTask={addTask}
               toggleTask={toggleTask}
               deleteTask={deleteTask}
+              updateTask={updateTask}
               sendMessage={sendMessage}
               handleSessionComplete={handleSessionComplete}
               setIsAddTaskOpen={setIsAddTaskOpen}

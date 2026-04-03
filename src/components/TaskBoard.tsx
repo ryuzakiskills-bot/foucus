@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, CheckCircle2, Circle, Trash2, ChevronDown } from 'lucide-react';
+import { Plus, CheckCircle2, Circle, Trash2, ChevronDown, Edit2, Check, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Task } from '../types';
 import { cn } from '../lib/utils';
@@ -9,12 +9,16 @@ interface TaskBoardProps {
   onAddTask: (title: string, category: Task['category']) => void;
   onToggleTask: (id: string) => void;
   onDeleteTask: (id: string) => void;
+  onUpdateTask: (id: string, updates: Partial<Task>) => void;
 }
 
-export default function TaskBoard({ tasks, onAddTask, onToggleTask, onDeleteTask }: TaskBoardProps) {
+export default function TaskBoard({ tasks, onAddTask, onToggleTask, onDeleteTask, onUpdateTask }: TaskBoardProps) {
   const [newTask, setNewTask] = useState('');
   const [category, setCategory] = useState<Task['category']>('work');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editCategory, setEditCategory] = useState<Task['category']>('work');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +27,19 @@ export default function TaskBoard({ tasks, onAddTask, onToggleTask, onDeleteTask
       setNewTask('');
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 2000);
+    }
+  };
+
+  const startEditing = (task: Task) => {
+    setEditingId(task.id);
+    setEditTitle(task.title);
+    setEditCategory(task.category);
+  };
+
+  const saveEdit = (id: string) => {
+    if (editTitle.trim()) {
+      onUpdateTask(id, { title: editTitle.trim(), category: editCategory });
+      setEditingId(null);
     }
   };
 
@@ -93,35 +110,78 @@ export default function TaskBoard({ tasks, onAddTask, onToggleTask, onDeleteTask
                   task.completed && "opacity-50"
                 )}
               >
-                <div className="flex items-center gap-3">
-                  <button onClick={() => onToggleTask(task.id)} className="cursor-pointer">
-                    {task.completed ? (
-                      <CheckCircle2 className="w-5 h-5 text-brand-500" />
-                    ) : (
-                      <Circle className="w-5 h-5 text-slate-500 hover:text-brand-400" />
-                    )}
-                  </button>
-                  <span className={cn(
-                    "text-sm font-medium",
-                    task.completed && "line-through text-slate-500"
-                  )}>
-                    {task.title}
-                  </span>
-                  <span className={cn(
-                    "text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border",
-                    task.category === 'urgent' ? "border-rose-500/50 text-rose-400 bg-rose-500/10" :
-                    task.category === 'work' ? "border-brand-500/50 text-brand-400 bg-brand-500/10" :
-                    "border-emerald-500/50 text-emerald-400 bg-emerald-500/10"
-                  )}>
-                    {task.category}
-                  </span>
-                </div>
-                <button 
-                  onClick={() => onDeleteTask(task.id)}
-                  className="opacity-0 group-hover:opacity-100 p-2 hover:text-rose-400 transition-all cursor-pointer"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {editingId === task.id ? (
+                  <div className="flex-1 flex items-center gap-3 min-w-0">
+                    <div className="w-5 h-5 shrink-0" /> {/* Placeholder for the checkbox to maintain alignment */}
+                    <input 
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm outline-none focus:border-brand-500/50 min-w-0"
+                      autoFocus
+                    />
+                    <div className="relative shrink-0">
+                      <select 
+                        value={editCategory}
+                        onChange={(e) => setEditCategory(e.target.value as Task['category'])}
+                        className="appearance-none bg-white/5 border border-white/10 rounded-xl px-3 py-2 pr-8 text-[10px] uppercase tracking-widest outline-none cursor-pointer hover:bg-white/10 transition-all"
+                      >
+                        <option value="work" className="bg-slate-900">Work</option>
+                        <option value="personal" className="bg-slate-900">Personal</option>
+                        <option value="urgent" className="bg-slate-900">Urgent</option>
+                      </select>
+                      <ChevronDown className="w-3 h-3 text-slate-500 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button onClick={() => saveEdit(task.id)} className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-all cursor-pointer">
+                        <Check className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => setEditingId(null)} className="p-2 bg-white/5 text-slate-400 rounded-lg hover:bg-white/10 transition-all cursor-pointer">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <button onClick={() => onToggleTask(task.id)} className="cursor-pointer">
+                        {task.completed ? (
+                          <CheckCircle2 className="w-5 h-5 text-brand-500" />
+                        ) : (
+                          <Circle className="w-5 h-5 text-slate-500 hover:text-brand-400" />
+                        )}
+                      </button>
+                      <span className={cn(
+                        "text-sm font-medium",
+                        task.completed && "line-through text-slate-500"
+                      )}>
+                        {task.title}
+                      </span>
+                      <span className={cn(
+                        "text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border",
+                        task.category === 'urgent' ? "border-rose-500/50 text-rose-400 bg-rose-500/10" :
+                        task.category === 'work' ? "border-brand-500/50 text-brand-400 bg-brand-500/10" :
+                        "border-emerald-500/50 text-emerald-400 bg-emerald-500/10"
+                      )}>
+                        {task.category}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                      <button 
+                        onClick={() => startEditing(task)}
+                        className="p-2 hover:text-brand-400 transition-all cursor-pointer"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => onDeleteTask(task.id)}
+                        className="p-2 hover:text-rose-400 transition-all cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </>
+                )}
               </motion.div>
             ))
           )}

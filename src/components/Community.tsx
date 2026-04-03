@@ -4,8 +4,9 @@ import {
   Trophy, Flame, Search, Plus, Globe, Lock, CheckCircle2,
   Monitor, Share2, X, MoreVertical, Settings, UserPlus,
   Send, Image as ImageIcon, Paperclip, MessageSquare,
-  User, Shield, Mail, ExternalLink, ChevronRight
+  User, Shield, Mail, ExternalLink, ChevronRight, Smile
 } from 'lucide-react';
+import EmojiPicker from 'emoji-picker-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -43,6 +44,7 @@ export default function Community() {
   const [isMuted, setIsMuted] = useState(false);
   const [joinedGroups, setJoinedGroups] = useState<number[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   
   // Room State
   const [isCreatingRoom, setIsCreatingRoom] = useState(false);
@@ -91,6 +93,7 @@ export default function Community() {
 
     setMessages(prev => [...prev, msg]);
     setNewMessage('');
+    setShowEmojiPicker(false);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'file') => {
@@ -108,6 +111,10 @@ export default function Community() {
       setMessages(prev => [...prev, msg]);
       showNotification(`${type === 'image' ? 'Image' : 'File'} uploaded!`);
     }
+  };
+
+  const onEmojiClick = (emojiData: any) => {
+    setNewMessage(prev => prev + emojiData.emoji);
   };
 
   const users: UserProfile[] = [
@@ -376,7 +383,7 @@ export default function Community() {
               <div ref={chatEndRef} />
             </div>
 
-            <form onSubmit={handleSendMessage} className="p-3 md:p-4 border-t border-white/5 flex flex-col gap-2 w-full">
+            <form onSubmit={handleSendMessage} className="p-3 md:p-4 border-t border-white/5 flex flex-col gap-2 w-full relative">
               <div className="flex items-center gap-2 w-full min-w-0">
                 <input 
                   type="file" 
@@ -415,12 +422,24 @@ export default function Community() {
                   className="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-lg md:rounded-xl px-2.5 md:px-3 py-1.5 md:py-2 text-[10px] md:text-xs outline-none focus:border-brand-500/50 transition-all"
                 />
                 <button 
+                  type="button" 
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  className="p-1.5 md:p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-brand-400 transition-all"
+                >
+                  <Smile className="w-3 h-3 md:w-4 md:h-4" />
+                </button>
+                <button 
                   type="submit"
                   className="p-1.5 md:p-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition-all"
                 >
                   <Send className="w-3 h-3 md:w-4 md:h-4" />
                 </button>
               </div>
+              {showEmojiPicker && (
+                <div className="absolute bottom-16 right-4 z-50">
+                  <EmojiPicker onEmojiClick={onEmojiClick} theme={'dark' as any} />
+                </div>
+              )}
             </form>
           </div>
 

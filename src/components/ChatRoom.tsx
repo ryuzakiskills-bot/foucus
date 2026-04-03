@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Send, User, Hash, Users, Search, MoreVertical, Paperclip, Smile, Image as ImageIcon, File as FileIcon, X } from 'lucide-react';
+import EmojiPicker from 'emoji-picker-react';
 import { ChatMessage } from '../types';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -14,6 +15,7 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
   const [input, setInput] = useState('');
   const [activeChat, setActiveChat] = useState('general');
   const [selectedFile, setSelectedFile] = useState<{ file: File, type: 'image' | 'file', preview?: string } | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -33,6 +35,7 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
       onSendMessage(input.trim(), 'text');
       setInput('');
     }
+    setShowEmojiPicker(false);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'file') => {
@@ -41,6 +44,10 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
       const preview = type === 'image' ? URL.createObjectURL(file) : undefined;
       setSelectedFile({ file, type, preview });
     }
+  };
+
+  const onEmojiClick = (emojiData: any) => {
+    setInput(prev => prev + emojiData.emoji);
   };
 
   const conversations = [
@@ -175,7 +182,7 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
           </AnimatePresence>
         </div>
 
-        <div className="p-6 bg-white/5 border-t border-white/10 w-full">
+        <div className="p-6 bg-white/5 border-t border-white/10 w-full relative">
           <form onSubmit={handleSend} className="flex flex-col gap-4 w-full">
             {selectedFile && (
               <div className="flex items-center gap-4 p-3 bg-brand-500/10 border border-brand-500/20 rounded-2xl animate-in fade-in slide-in-from-bottom-2">
@@ -242,7 +249,7 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
               />
               <button 
                 type="button" 
-                onClick={() => alert('Emoji picker coming soon!')}
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 className="p-1 hover:text-brand-400 transition-all text-slate-500 cursor-pointer"
               >
                 <Smile className="w-5 h-5" />
@@ -252,6 +259,11 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
               </button>
             </div>
           </form>
+          {showEmojiPicker && (
+            <div className="absolute bottom-24 right-6 z-50">
+              <EmojiPicker onEmojiClick={onEmojiClick} theme={'dark' as any} />
+            </div>
+          )}
         </div>
       </div>
     </div>

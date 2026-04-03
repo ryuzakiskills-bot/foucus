@@ -260,7 +260,7 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
             </div>
           </form>
           {showEmojiPicker && (
-            <div className="absolute bottom-24 right-6 z-50">
+            <div className="absolute bottom-20 right-0 z-[100] shadow-2xl rounded-2xl overflow-hidden border border-white/10">
               <EmojiPicker onEmojiClick={onEmojiClick} theme={'dark' as any} />
             </div>
           )}

@@ -436,7 +436,7 @@ export default function Community() {
                 </button>
               </div>
               {showEmojiPicker && (
-                <div className="absolute bottom-16 right-4 z-50">
+                <div className="absolute bottom-16 right-0 z-[100] shadow-2xl rounded-2xl overflow-hidden border border-white/10">
                   <EmojiPicker onEmojiClick={onEmojiClick} theme={'dark' as any} />
                 </div>
               )}

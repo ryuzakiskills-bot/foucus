@@ -52,6 +52,7 @@ export default function Community() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [roomName, setRoomName] = useState('');
   const [roomType, setRoomType] = useState<'public' | 'private'>('public');
+  const [activeTab, setActiveTab] = useState<'stage' | 'chat' | 'members'>('stage');
 
   // Chat State
   const [messages, setMessages] = useState<Message[]>([
@@ -190,52 +191,88 @@ export default function Community() {
 
   if (activeRoom) {
     return (
-      <div className="h-full flex flex-col gap-6">
+      <div className="h-full flex flex-col gap-4 md:gap-6">
         {/* Room Header */}
-        <div className="flex items-center justify-between glass-card p-4">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-brand-500/20 flex items-center justify-center">
-              <Monitor className="w-5 h-5 text-brand-400" />
+        <div className="flex flex-row items-center justify-between glass-card p-3 md:p-4 gap-2 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-4 min-w-0">
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-brand-500/20 flex items-center justify-center shrink-0">
+              <Monitor className="w-4 h-4 md:w-5 md:h-5 text-brand-400" />
             </div>
-            <div>
-              <h2 className="font-bold text-lg">{activeRoom.name}</h2>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase tracking-widest text-slate-500">{activeRoom.type} Room</span>
-                <div className="w-1 h-1 rounded-full bg-slate-700" />
-                <span className="text-xs text-brand-400">{activeRoom.participants} participant</span>
+            <div className="min-w-0">
+              <h2 className="font-bold text-sm md:text-lg truncate">{activeRoom.name}</h2>
+              <div className="flex items-center gap-1.5 md:gap-2">
+                <span className="text-[7px] md:text-[10px] uppercase tracking-widest text-slate-500 truncate">{activeRoom.type}</span>
+                <div className="w-0.5 h-0.5 rounded-full bg-slate-700 shrink-0" />
+                <span className="text-[9px] md:text-xs text-brand-400 truncate">{activeRoom.participants} online</span>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={handleInvite}
-              className="p-2 hover:bg-white/5 rounded-lg transition-all text-slate-400 hover:text-white"
-              title="Invite Friends"
-            >
-              <UserPlus className="w-5 h-5" />
-            </button>
-            <button className="p-2 hover:bg-white/5 rounded-lg transition-all text-slate-400 hover:text-white">
-              <Settings className="w-5 h-5" />
-            </button>
+          <div className="flex items-center gap-1.5 md:gap-4 shrink-0">
+            <div className="hidden xs:flex items-center gap-1 md:gap-2">
+              <button 
+                onClick={handleInvite}
+                className="p-1.5 md:p-2 hover:bg-white/5 rounded-lg transition-all text-slate-400 hover:text-white"
+                title="Invite Friends"
+              >
+                <UserPlus className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+            </div>
             <button 
               onClick={() => {
                 if (screenStream) screenStream.getTracks().forEach(t => t.stop());
                 setActiveRoom(null);
                 setIsSharingScreen(false);
               }}
-              className="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2"
+              className="bg-rose-500 hover:bg-rose-600 text-white px-2.5 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[10px] md:text-sm font-bold transition-all flex items-center gap-1.5 md:gap-2"
             >
-              <PhoneOff className="w-4 h-4" />
-              Leave Room
+              <PhoneOff className="w-3 h-3 md:w-4 md:h-4" />
+              <span>Leave</span>
             </button>
           </div>
         </div>
 
+        {/* Mobile Tab Switcher */}
+        <div className="lg:hidden flex p-1 bg-white/5 rounded-xl border border-white/10">
+          <button 
+            onClick={() => setActiveTab('stage')}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-bold rounded-lg transition-all",
+              activeTab === 'stage' ? "bg-brand-500 text-white shadow-lg" : "text-slate-400 hover:text-white"
+            )}
+          >
+            <Monitor className="w-3 h-3" />
+            Stage
+          </button>
+          <button 
+            onClick={() => setActiveTab('chat')}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-bold rounded-lg transition-all",
+              activeTab === 'chat' ? "bg-brand-500 text-white shadow-lg" : "text-slate-400 hover:text-white"
+            )}
+          >
+            <MessageSquare className="w-3 h-3" />
+            Chat
+          </button>
+          <button 
+            onClick={() => setActiveTab('members')}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-bold rounded-lg transition-all",
+              activeTab === 'members' ? "bg-brand-500 text-white shadow-lg" : "text-slate-400 hover:text-white"
+            )}
+          >
+            <Users className="w-3 h-3" />
+            Members
+          </button>
+        </div>
+
         {/* Room Content */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 min-h-0 overflow-hidden">
           {/* Main Stage */}
-          <div className="lg:col-span-6 flex flex-col gap-4 min-h-0">
-            <div className="flex-1 glass-card bg-slate-950/50 relative overflow-hidden flex items-center justify-center border-brand-500/10">
+          <div className={cn(
+            "lg:col-span-6 flex flex-col gap-10 min-h-0",
+            activeTab !== 'stage' && "hidden lg:flex"
+          )}>
+            <div className="flex-1 glass-card bg-slate-950/50 relative overflow-hidden flex items-center justify-center border-brand-500/10 min-h-[500px] md:min-h-0">
               {isSharingScreen ? (
                 <video 
                   ref={videoRef} 
@@ -244,17 +281,17 @@ export default function Community() {
                   className="w-full h-full object-contain"
                 />
               ) : (
-                <div className="flex flex-col items-center gap-4 text-center p-8">
-                  <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                    <Monitor className="w-10 h-10 text-slate-600" />
+                <div className="flex flex-col items-center gap-4 md:gap-6 text-center p-8 md:p-12 pb-24 md:pb-32">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                    <Monitor className="w-8 h-8 md:w-10 md:h-10 text-slate-600" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold">No one is sharing</h3>
-                    <p className="text-slate-500 text-sm mt-1">Start sharing your screen to collaborate with others.</p>
+                    <h3 className="text-xl md:text-2xl font-bold">No one is sharing</h3>
+                    <p className="text-slate-500 text-xs md:text-sm mt-2 max-w-xs">Start sharing your screen to collaborate with others in real-time.</p>
                   </div>
                   <button 
                     onClick={toggleScreenShare}
-                    className="mt-2 bg-brand-500 hover:bg-brand-600 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-brand-500/20"
+                    className="mt-4 bg-brand-500 hover:bg-brand-600 text-white px-8 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-brand-500/20 text-sm"
                   >
                     Share Screen
                   </button>
@@ -262,67 +299,70 @@ export default function Community() {
               )}
 
               {/* Overlay Controls */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-slate-900/80 backdrop-blur-xl p-2 rounded-2xl border border-white/10 shadow-2xl">
+              <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-xl p-1.5 md:p-2 rounded-xl md:rounded-2xl border border-white/10 shadow-2xl">
                 <button 
                   onClick={() => setIsMuted(!isMuted)}
                   className={cn(
-                    "p-3 rounded-xl transition-all",
+                    "p-2 md:p-3 rounded-lg md:rounded-xl transition-all",
                     isMuted ? "bg-rose-500 text-white" : "hover:bg-white/10 text-slate-300"
                   )}
                 >
-                  {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  {isMuted ? <MicOff className="w-4 h-4 md:w-5 md:h-5" /> : <Mic className="w-4 h-4 md:w-5 md:h-5" />}
                 </button>
                 <button 
                   onClick={toggleScreenShare}
                   className={cn(
-                    "p-3 rounded-xl transition-all",
+                    "p-2 md:p-3 rounded-lg md:rounded-xl transition-all",
                     isSharingScreen ? "bg-brand-500 text-white" : "hover:bg-white/10 text-slate-300"
                   )}
                 >
-                  <Monitor className="w-5 h-5" />
+                  <Monitor className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
-                <div className="w-px h-6 bg-white/10 mx-1" />
-                <button className="p-3 hover:bg-white/10 rounded-xl transition-all text-slate-300">
-                  <MoreVertical className="w-5 h-5" />
+                <div className="w-px h-5 md:h-6 bg-white/10 mx-0.5 md:mx-1" />
+                <button className="p-2 md:p-3 hover:bg-white/10 rounded-lg md:rounded-xl transition-all text-slate-300">
+                  <MoreVertical className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
               </div>
             </div>
           </div>
 
           {/* Chat Sidebar */}
-          <div className="lg:col-span-3 glass-card flex flex-col min-h-0 bg-slate-900/30">
-            <div className="p-4 border-b border-white/5 flex items-center justify-between">
-              <h3 className="font-bold flex items-center gap-2 text-sm">
-                <MessageSquare className="w-4 h-4 text-brand-400" />
+          <div className={cn(
+            "lg:col-span-3 glass-card flex flex-col min-h-0 bg-slate-900/30 overflow-hidden",
+            activeTab !== 'chat' && "hidden lg:flex"
+          )}>
+            <div className="p-4 md:p-6 border-b border-white/5 flex items-center justify-between">
+              <h3 className="font-bold flex items-center gap-2 text-sm md:text-base">
+                <MessageSquare className="w-4 h-4 md:w-5 md:h-5 text-brand-400" />
                 Room Chat
               </h3>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-4 md:gap-6 custom-scrollbar">
               {messages.map((msg) => (
                 <div key={msg.id} className={cn(
-                  "flex flex-col gap-1 max-w-[85%]",
+                  "flex flex-col gap-1 max-w-[90%] md:max-w-[85%]",
                   msg.sender === 'You' ? "ml-auto items-end" : "items-start"
                 )}>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-slate-500">{msg.sender}</span>
-                    <span className="text-[10px] text-slate-600">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="text-[8px] md:text-[10px] font-bold text-slate-500">{msg.sender}</span>
+                    <span className="text-[8px] md:text-[10px] text-slate-600">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   <div className={cn(
-                    "px-3 py-2 rounded-2xl text-sm",
+                    "px-2.5 md:px-3 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-xs md:text-sm",
                     msg.sender === 'You' ? "bg-brand-500 text-white rounded-tr-none" : "bg-white/5 text-slate-200 rounded-tl-none border border-white/5"
                   )}>
                     {msg.type === 'text' && msg.text}
                     {msg.type === 'image' && (
                       <div className="flex flex-col gap-2">
                         <img src={msg.url} alt="Shared" className="rounded-lg w-full h-auto" referrerPolicy="no-referrer" />
-                        <span className="text-[10px] opacity-70">{msg.text}</span>
+                        <span className="text-[8px] md:text-[10px] opacity-70">{msg.text}</span>
                       </div>
                     )}
                     {msg.type === 'file' && (
                       <div className="flex items-center gap-2 bg-black/20 p-2 rounded-lg">
-                        <Paperclip className="w-4 h-4" />
-                        <span className="text-xs truncate max-w-[100px]">{msg.text}</span>
+                        <Paperclip className="w-3 h-3 md:w-4 md:h-4" />
+                        <span className="text-[10px] md:text-xs truncate max-w-[80px] md:max-w-[100px]">{msg.text}</span>
                       </div>
                     )}
                   </div>
@@ -331,57 +371,60 @@ export default function Community() {
               <div ref={chatEndRef} />
             </div>
 
-            <form onSubmit={handleSendMessage} className="p-4 border-t border-white/5 flex flex-col gap-2">
-              <div className="flex items-center gap-2">
+            <form onSubmit={handleSendMessage} className="p-3 md:p-4 border-t border-white/5 flex flex-col gap-2 w-full">
+              <div className="flex items-center gap-2 w-full min-w-0">
                 <button 
                   type="button" 
                   onClick={() => handleFileUpload('image')}
-                  className="p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-brand-400 transition-all"
+                  className="p-1.5 md:p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-brand-400 transition-all"
                 >
-                  <ImageIcon className="w-4 h-4" />
+                  <ImageIcon className="w-3 h-3 md:w-4 md:h-4" />
                 </button>
                 <button 
                   type="button" 
                   onClick={() => handleFileUpload('file')}
-                  className="p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-brand-400 transition-all"
+                  className="p-1.5 md:p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-brand-400 transition-all"
                 >
-                  <Paperclip className="w-4 h-4" />
+                  <Paperclip className="w-3 h-3 md:w-4 md:h-4" />
                 </button>
                 <input 
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type a message..."
-                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-brand-500/50 transition-all"
+                  className="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-lg md:rounded-xl px-2.5 md:px-3 py-1.5 md:py-2 text-[10px] md:text-xs outline-none focus:border-brand-500/50 transition-all"
                 />
                 <button 
                   type="submit"
-                  className="p-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition-all"
+                  className="p-1.5 md:p-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition-all"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-3 h-3 md:w-4 md:h-4" />
                 </button>
               </div>
             </form>
           </div>
 
           {/* Participants Sidebar */}
-          <div className="lg:col-span-3 glass-card p-6 flex flex-col gap-6 bg-slate-900/30">
-            <h3 className="font-bold flex items-center gap-2 text-sm">
-              <Users className="w-4 h-4 text-brand-400" />
+          <div className={cn(
+            "lg:col-span-3 glass-card p-6 md:p-8 flex flex-col gap-6 md:gap-8 bg-slate-900/30",
+            activeTab !== 'members' && "hidden lg:flex"
+          )}>
+            <h3 className="font-bold flex items-center gap-2 text-sm md:text-base">
+              <Users className="w-4 h-4 md:w-5 md:h-5 text-brand-400" />
               Members
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-4 md:space-y-6 overflow-y-auto custom-scrollbar">
               <div className="flex items-center justify-between group cursor-pointer" onClick={() => setSelectedUser(users[2])}>
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center font-bold text-sm">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-brand-500 flex items-center justify-center font-bold text-xs md:text-sm">
                       Y
                     </div>
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-brand-500 border-2 border-slate-900 rounded-full" />
+                    <div className="absolute bottom-0 right-0 w-2.5 h-2.5 md:w-3 md:h-3 bg-brand-500 border-2 border-slate-900 rounded-full" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-sm font-bold">You</span>
-                    <span className="text-[10px] text-brand-400 font-medium">Host</span>
+                    <span className="text-xs md:text-sm font-bold">You</span>
+                    <span className="text-[8px] md:text-[10px] text-brand-400 font-medium">Host</span>
                   </div>
                 </div>
               </div>
@@ -395,31 +438,31 @@ export default function Community() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-sm text-slate-400 border border-white/5">
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-xs md:text-sm text-slate-400 border border-white/5">
                         {user.avatar}
                       </div>
                       <div className={cn(
-                        "absolute bottom-0 right-0 w-3 h-3 border-2 border-slate-900 rounded-full",
+                        "absolute bottom-0 right-0 w-2.5 h-2.5 md:w-3 md:h-3 border-2 border-slate-900 rounded-full",
                         user.status === 'online' ? "bg-brand-500" : 
                         user.status === 'idle' ? "bg-amber-500" : "bg-slate-500"
                       )} />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm font-bold">{user.name}</span>
-                      <span className="text-[10px] text-slate-500 font-medium capitalize">{user.status}</span>
+                      <span className="text-xs md:text-sm font-bold">{user.name}</span>
+                      <span className="text-[8px] md:text-[10px] text-slate-500 font-medium capitalize">{user.status}</span>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-600 opacity-0 group-hover:opacity-100 transition-all" />
+                  <ChevronRight className="w-3 h-3 md:w-4 md:h-4 text-slate-600 opacity-0 group-hover:opacity-100 transition-all" />
                 </div>
               ))}
             </div>
 
-            <div className="mt-auto pt-6 border-t border-white/5">
+            <div className="mt-auto pt-4 md:pt-6 border-t border-white/5">
               <button 
                 onClick={handleInvite}
-                className="w-full py-3 rounded-xl bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 text-xs font-bold transition-all flex items-center justify-center gap-2"
+                className="w-full py-2.5 md:py-3 rounded-lg md:rounded-xl bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 text-[10px] md:text-xs font-bold transition-all flex items-center justify-center gap-2"
               >
-                <Share2 className="w-4 h-4" />
+                <Share2 className="w-3 h-3 md:w-4 md:h-4" />
                 Invite Friends
               </button>
             </div>
@@ -693,25 +736,25 @@ export default function Community() {
           
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="flex flex-col gap-2 text-center md:text-left">
-              <h2 className="text-3xl font-bold tracking-tight">Focus Voice Hub</h2>
-              <p className="text-slate-400 max-w-md">Join a live voice session to work alongside others. No distractions, just pure focus and occasional motivation.</p>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Focus Voice Hub</h2>
+              <p className="text-slate-400 text-sm max-w-md">Join a live voice session to work alongside others. No distractions, just pure focus.</p>
               
-              <div className="flex items-center gap-4 mt-4 justify-center md:justify-start">
-                <div className="flex -space-x-3">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="w-10 h-10 rounded-full border-2 border-slate-950 bg-slate-800 flex items-center justify-center text-xs font-bold">
+              <div className="flex items-center gap-4 mt-2 md:mt-4 justify-center md:justify-start">
+                <div className="flex -space-x-2 md:-space-x-3">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-slate-950 bg-slate-800 flex items-center justify-center text-[10px] md:text-xs font-bold">
                       {String.fromCharCode(64 + i)}
                     </div>
                   ))}
-                  <div className="w-10 h-10 rounded-full border-2 border-slate-950 bg-brand-500 flex items-center justify-center text-xs font-bold">
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-slate-950 bg-brand-500 flex items-center justify-center text-[10px] md:text-xs font-bold">
                     +8
                   </div>
                 </div>
-                <span className="text-sm text-brand-400 font-medium">12 people focusing now</span>
+                <span className="text-xs md:text-sm text-brand-400 font-medium">12 people focusing now</span>
               </div>
             </div>
 
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-3 md:gap-4">
               <AnimatePresence mode="wait">
                 {!isInVoice ? (
                   <motion.button
@@ -722,40 +765,40 @@ export default function Community() {
                       setIsInVoice(true);
                       showNotification('Connected to Voice Hub!');
                     }}
-                    className="w-24 h-24 rounded-full bg-brand-500 hover:bg-brand-600 flex items-center justify-center shadow-xl shadow-brand-500/40 group/btn transition-all cursor-pointer"
+                    className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-brand-500 hover:bg-brand-600 flex items-center justify-center shadow-xl shadow-brand-500/40 group/btn transition-all cursor-pointer"
                   >
-                    <Volume2 className="w-10 h-10 text-white group-hover/btn:scale-110 transition-transform" />
+                    <Volume2 className="w-8 h-8 md:w-10 md:h-10 text-white group-hover/btn:scale-110 transition-transform" />
                   </motion.button>
                 ) : (
-                  <div className="flex flex-col items-center gap-6">
-                    <div className="flex items-center gap-4">
+                  <div className="flex flex-col items-center gap-4 md:gap-6">
+                    <div className="flex items-center gap-3 md:gap-4">
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => setIsMuted(!isMuted)}
                         className={cn(
-                          "w-16 h-16 rounded-full flex items-center justify-center transition-all cursor-pointer",
+                          "w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all cursor-pointer",
                           isMuted ? "bg-rose-500/20 text-rose-400 border border-rose-500/30" : "bg-brand-500/20 text-brand-400 border border-brand-500/30"
                         )}
                       >
-                        {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+                        {isMuted ? <MicOff className="w-5 h-5 md:w-6 md:h-6" /> : <Mic className="w-5 h-5 md:w-6 md:h-6" />}
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => setIsInVoice(false)}
-                        className="w-16 h-16 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/20 cursor-pointer"
+                        className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/20 cursor-pointer"
                       >
-                        <PhoneOff className="w-6 h-6" />
+                        <PhoneOff className="w-5 h-5 md:w-6 md:h-6" />
                       </motion.button>
                     </div>
                     {/* Visualizer */}
                     {!isMuted && (
-                      <div className="flex items-center gap-1 h-8">
-                        {[1, 2, 3, 4, 5, 6].map(i => (
+                      <div className="flex items-center gap-1 h-6 md:h-8">
+                        {[1, 2, 3, 4, 5].map(i => (
                           <motion.div
                             key={i}
-                            animate={{ height: [8, 24, 12, 32, 8] }}
+                            animate={{ height: [6, 18, 10, 24, 6] }}
                             transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
                             className="w-1 bg-brand-400 rounded-full"
                           />
@@ -765,7 +808,7 @@ export default function Community() {
                   </div>
                 )}
               </AnimatePresence>
-              <span className="text-sm font-bold tracking-widest uppercase text-slate-500">
+              <span className="text-[10px] md:text-sm font-bold tracking-widest uppercase text-slate-500">
                 {isInVoice ? (isMuted ? 'Muted' : 'Speaking...') : 'Join Voice'}
               </span>
             </div>

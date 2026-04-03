@@ -40,40 +40,40 @@ export default function Dashboard({
     switch (activeTab) {
       case 'dashboard':
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-            <div className="lg:col-span-2 flex flex-col gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 md:gap-12 h-full">
+            <div className="lg:col-span-2 flex flex-col gap-10 md:gap-12">
               {/* Welcome & Progress */}
-              <div className="glass-card p-8 bg-gradient-to-br from-slate-900/50 to-brand-500/5 border-brand-500/10">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-                  <div>
-                    <h2 className="text-3xl font-bold tracking-tight mb-1">Welcome back, Focus Master! 🚀</h2>
-                    <p className="text-slate-400 text-sm">You're on a <span className="text-brand-400 font-bold">5 day streak</span>. Keep it up!</p>
+              <div className="glass-card p-8 md:p-12 bg-gradient-to-br from-slate-900/50 to-brand-500/5 border-brand-500/10">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-10 mb-10 md:mb-12">
+                  <div className="text-center sm:text-left">
+                    <h2 className="text-2xl md:text-4xl font-bold tracking-tight mb-2">Welcome back, Focus Master! 🚀</h2>
+                    <p className="text-slate-400 text-sm md:text-base">You're on a <span className="text-brand-400 font-bold">5 day streak</span>. Keep it up!</p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center sm:justify-end gap-3">
                     <div className="flex flex-col items-end">
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Daily Goal</span>
-                      <span className="text-sm font-bold text-brand-400">{totalFocusTime} / {dailyGoal} min</span>
+                      <span className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">Daily Goal</span>
+                      <span className="text-xs md:text-sm font-bold text-brand-400">{totalFocusTime} / {dailyGoal} min</span>
                     </div>
-                    <div className="w-12 h-12 rounded-full border-4 border-white/5 flex items-center justify-center relative">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-4 border-white/5 flex items-center justify-center relative">
                       <svg className="w-full h-full -rotate-90">
                         <circle
-                          cx="24"
-                          cy="24"
-                          r="20"
+                          cx={window.innerWidth < 768 ? 20 : 24}
+                          cy={window.innerWidth < 768 ? 20 : 24}
+                          r={window.innerWidth < 768 ? 16 : 20}
                           fill="transparent"
                           stroke="currentColor"
                           strokeWidth="4"
-                          strokeDasharray={125.6}
-                          strokeDashoffset={125.6 - (125.6 * progress) / 100}
+                          strokeDasharray={window.innerWidth < 768 ? 100.5 : 125.6}
+                          strokeDashoffset={(window.innerWidth < 768 ? 100.5 : 125.6) - ((window.innerWidth < 768 ? 100.5 : 125.6) * progress) / 100}
                           className="text-brand-500 transition-all duration-1000"
                         />
                       </svg>
-                      <span className="absolute text-[10px] font-bold">{Math.round(progress)}%</span>
+                      <span className="absolute text-[8px] md:text-[10px] font-bold">{Math.round(progress)}%</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                <div className="w-full h-1.5 md:h-2 bg-white/5 rounded-full overflow-hidden">
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
@@ -83,41 +83,41 @@ export default function Dashboard({
               </div>
 
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 md:gap-8">
                 <button 
                   onClick={() => setActiveTab('analytics')}
-                  className="glass-card p-6 flex flex-col gap-2 hover:bg-white/10 transition-all cursor-pointer text-left group"
+                  className="glass-card p-4 md:p-6 flex flex-col gap-1 md:gap-2 hover:bg-white/10 transition-all cursor-pointer text-left group"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 text-sm font-medium">Total Focus</span>
-                    <Zap className="w-4 h-4 text-brand-400 group-hover:scale-110 transition-transform" />
+                    <span className="text-slate-400 text-[10px] md:text-sm font-medium">Total Focus</span>
+                    <Zap className="w-3 h-3 md:w-4 md:h-4 text-brand-400 group-hover:scale-110 transition-transform" />
                   </div>
-                  <span className="text-3xl font-bold">{totalFocusTime}m</span>
-                  <span className="text-xs text-brand-400 flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" /> +12.5% <span className="text-slate-500 font-normal">vs last week</span>
+                  <span className="text-xl md:text-3xl font-bold">{totalFocusTime}m</span>
+                  <span className="text-[8px] md:text-xs text-brand-400 flex items-center gap-1">
+                    <TrendingUp className="w-2 h-2 md:w-3 md:h-3" /> +12.5%
                   </span>
                 </button>
                 <button 
                   onClick={() => setActiveTab('tasks')}
-                  className="glass-card p-6 flex flex-col gap-2 hover:bg-white/10 transition-all cursor-pointer text-left group"
+                  className="glass-card p-4 md:p-6 flex flex-col gap-1 md:gap-2 hover:bg-white/10 transition-all cursor-pointer text-left group"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 text-sm font-medium">Tasks Done</span>
-                    <Target className="w-4 h-4 text-brand-400 group-hover:scale-110 transition-transform" />
+                    <span className="text-slate-400 text-[10px] md:text-sm font-medium">Tasks Done</span>
+                    <Target className="w-3 h-3 md:w-4 md:h-4 text-brand-400 group-hover:scale-110 transition-transform" />
                   </div>
-                  <span className="text-3xl font-bold">{tasks.filter(t => t.completed).length}</span>
-                  <span className="text-xs text-slate-500">Out of {tasks.length} total</span>
+                  <span className="text-xl md:text-3xl font-bold">{tasks.filter(t => t.completed).length}</span>
+                  <span className="text-[8px] md:text-xs text-slate-500">Out of {tasks.length}</span>
                 </button>
                 <button 
                   onClick={() => setActiveTab('community')}
-                  className="glass-card p-6 flex flex-col gap-2 hover:bg-white/10 transition-all cursor-pointer text-left group"
+                  className="glass-card p-4 md:p-6 flex flex-col gap-1 md:gap-2 hover:bg-white/10 transition-all cursor-pointer text-left group col-span-2 sm:col-span-1"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 text-sm font-medium">Community</span>
-                    <Users className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
+                    <span className="text-slate-400 text-[10px] md:text-sm font-medium">Community</span>
+                    <Users className="w-3 h-3 md:w-4 md:h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
                   </div>
-                  <span className="text-3xl font-bold">12</span>
-                  <span className="text-xs text-brand-400">Active now</span>
+                  <span className="text-xl md:text-3xl font-bold">12</span>
+                  <span className="text-[8px] md:text-xs text-brand-400">Active now</span>
                 </button>
               </div>
 
@@ -185,7 +185,7 @@ export default function Dashboard({
         );
       case 'focus':
         return (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex flex-col items-center justify-start md:justify-center min-h-full py-8">
             <div className="w-full max-w-2xl">
               <Timer onSessionComplete={handleSessionComplete} />
             </div>
@@ -314,7 +314,7 @@ export default function Dashboard({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
-          className="h-full"
+          className="min-h-full"
         >
           {renderContent()}
         </motion.div>

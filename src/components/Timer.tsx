@@ -14,13 +14,15 @@ export default function Timer({ onSessionComplete }: TimerProps) {
   const [isActive, setIsActive] = useState(false);
   const [mode, setMode] = useState<'work' | 'break'>('work');
   const [showSettings, setShowSettings] = useState(false);
+  const [sessionCount, setSessionCount] = useState(1);
 
   const toggleTimer = () => setIsActive(!isActive);
 
-  const resetTimer = useCallback(() => {
+  const handleModeChange = (newMode: 'work' | 'break') => {
+    setMode(newMode);
     setIsActive(false);
-    setTimeLeft(mode === 'work' ? workDuration * 60 : breakDuration * 60);
-  }, [mode, workDuration, breakDuration]);
+    setTimeLeft(newMode === 'work' ? workDuration * 60 : breakDuration * 60);
+  };
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -32,6 +34,11 @@ export default function Timer({ onSessionComplete }: TimerProps) {
     } else if (timeLeft === 0) {
       setIsActive(false);
       onSessionComplete?.(mode, mode === 'work' ? workDuration : breakDuration);
+      
+      if (mode === 'work') {
+        setSessionCount(prev => prev + 1);
+      }
+      
       // Auto switch mode
       const nextMode = mode === 'work' ? 'break' : 'work';
       setMode(nextMode);
@@ -67,14 +74,26 @@ export default function Timer({ onSessionComplete }: TimerProps) {
   };
 
   return (
-    <div className="glass-card p-8 md:p-12 flex flex-col items-center justify-center gap-8 relative overflow-hidden group min-h-[550px] border-white/5">
-      {/* Background Glow - Subtle Brand Glow Only */}
-      <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-brand-500/20 to-indigo-500/20 transition-all duration-1000" />
+    <div className={cn(
+      "glass-card p-10 md:p-16 flex flex-col items-center justify-center gap-10 relative group min-h-[550px] transition-all duration-700",
+      mode === 'work' ? "border-brand-500/20 shadow-[0_0_50px_-12px_rgba(14,165,233,0.15)]" : "border-emerald-500/20 shadow-[0_0_50px_-12px_rgba(16,185,129,0.15)]"
+    )}>
+      {/* Background Glow */}
+      <div className={cn(
+        "absolute inset-0 opacity-10 transition-all duration-1000 rounded-[inherit] overflow-hidden pointer-events-none",
+        mode === 'work' ? "bg-gradient-to-br from-brand-500/20 to-indigo-500/20" : "bg-gradient-to-br from-emerald-500/20 to-teal-500/20"
+      )} />
       
+      {/* Session Counter */}
+      <div className="absolute top-4 right-4 md:top-6 md:right-8 flex items-center gap-2 px-2 md:px-3 py-1 bg-white/5 rounded-full border border-white/10 z-20">
+        <div className={cn("w-1 md:w-1.5 h-1 md:h-1.5 rounded-full animate-pulse", mode === 'work' ? "bg-brand-400" : "bg-emerald-400")} />
+        <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Session {sessionCount}</span>
+      </div>
+
       {/* Mode Switcher */}
       <div className="flex gap-2 p-1.5 bg-white/5 rounded-2xl border border-white/10 relative z-10 shadow-inner">
         <button
-          onClick={() => { setMode('work'); resetTimer(); }}
+          onClick={() => handleModeChange('work')}
           className={cn(
             "flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300",
             mode === 'work' ? "bg-brand-500 text-white shadow-lg shadow-brand-500/30 scale-105" : "text-slate-400 hover:text-white hover:bg-white/5"
@@ -84,10 +103,10 @@ export default function Timer({ onSessionComplete }: TimerProps) {
           Focus
         </button>
         <button
-          onClick={() => { setMode('break'); resetTimer(); }}
+          onClick={() => handleModeChange('break')}
           className={cn(
             "flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300",
-            mode === 'break' ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 scale-105" : "text-slate-400 hover:text-white hover:bg-white/5"
+            mode === 'break' ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-105" : "text-slate-400 hover:text-white hover:bg-white/5"
           )}
         >
           <Coffee className="w-4 h-4" />
@@ -99,7 +118,10 @@ export default function Timer({ onSessionComplete }: TimerProps) {
       <div className="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center">
         <svg 
           viewBox="0 0 280 280"
-          className="w-full h-full -rotate-90 transform drop-shadow-[0_0_15px_rgba(14,165,233,0.1)]"
+          className={cn(
+            "w-full h-full -rotate-90 transform transition-all duration-700",
+            mode === 'work' ? "drop-shadow-[0_0_15px_rgba(14,165,233,0.1)]" : "drop-shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+          )}
         >
           {/* Background Circle */}
           <circle
@@ -116,7 +138,7 @@ export default function Timer({ onSessionComplete }: TimerProps) {
             r={radius}
             className={cn(
               "fill-none transition-colors duration-1000",
-              mode === 'work' ? "stroke-brand-500" : "stroke-indigo-400"
+              mode === 'work' ? "stroke-brand-500" : "stroke-emerald-400"
             )}
             strokeWidth="8"
             strokeLinecap="round"
@@ -136,7 +158,10 @@ export default function Timer({ onSessionComplete }: TimerProps) {
           >
             {formatTime(timeLeft)}
           </motion.div>
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mt-2">
+          <span className={cn(
+            "text-[10px] font-black uppercase tracking-[0.4em] mt-2 transition-colors duration-700",
+            mode === 'work' ? "text-brand-400" : "text-emerald-400"
+          )}>
             {mode === 'work' ? 'Deep Work' : 'Resting'}
           </span>
         </div>
@@ -146,17 +171,22 @@ export default function Timer({ onSessionComplete }: TimerProps) {
       <div className="flex flex-col items-center gap-4 relative z-10 w-full max-w-[280px]">
         <div className="flex items-center justify-between w-full bg-white/5 p-3 rounded-2xl border border-white/10">
           <button 
-            onClick={() => adjustDuration(mode, -5)}
+            onClick={() => adjustDuration(mode, -1)}
             className="p-2 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-all"
           >
             <Minus className="w-4 h-4" />
           </button>
           <div className="flex flex-col items-center">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Duration</span>
-            <span className="text-lg font-bold text-white">{mode === 'work' ? workDuration : breakDuration}m</span>
+            <span className={cn(
+              "text-lg font-bold transition-colors duration-700",
+              mode === 'work' ? "text-brand-400" : "text-emerald-400"
+            )}>
+              {mode === 'work' ? workDuration : breakDuration}m
+            </span>
           </div>
           <button 
-            onClick={() => adjustDuration(mode, 5)}
+            onClick={() => adjustDuration(mode, 1)}
             className="p-2 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-all"
           >
             <Plus className="w-4 h-4" />
@@ -167,7 +197,7 @@ export default function Timer({ onSessionComplete }: TimerProps) {
       {/* Main Controls */}
       <div className="flex items-center gap-6 relative z-10">
         <button
-          onClick={resetTimer}
+          onClick={() => handleModeChange(mode)}
           className="w-14 h-14 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-all group/reset shadow-lg"
         >
           <RotateCcw className="w-5 h-5 text-slate-400 group-hover/reset:rotate-[-90deg] transition-transform duration-500" />
@@ -177,7 +207,9 @@ export default function Timer({ onSessionComplete }: TimerProps) {
           onClick={toggleTimer}
           className={cn(
             "w-20 h-20 rounded-3xl flex items-center justify-center transition-all shadow-2xl group/play",
-            mode === 'work' ? "bg-brand-500 hover:bg-brand-600 shadow-brand-500/40" : "bg-indigo-500 hover:bg-indigo-600 shadow-indigo-500/40"
+            mode === 'work' 
+              ? "bg-brand-500 hover:bg-brand-600 shadow-brand-500/40" 
+              : "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/40"
           )}
         >
           {isActive ? (
@@ -209,9 +241,21 @@ export default function Timer({ onSessionComplete }: TimerProps) {
           >
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold tracking-tight">Timer Configuration</h3>
-              <button onClick={() => setShowSettings(false)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => {
+                    setWorkDuration(25);
+                    setBreakDuration(5);
+                    setTimeLeft(mode === 'work' ? 25 * 60 : 5 * 60);
+                  }}
+                  className="text-[10px] text-slate-500 hover:text-brand-400 font-bold uppercase tracking-widest transition-colors"
+                >
+                  Reset Defaults
+                </button>
+                <button onClick={() => setShowSettings(false)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             <div className="space-y-8">

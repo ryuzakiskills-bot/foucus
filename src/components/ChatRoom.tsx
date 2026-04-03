@@ -33,14 +33,14 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
     <div className="flex h-full glass-card overflow-hidden border-white/5">
       {/* Conversations Sidebar */}
       <div className="hidden md:flex flex-col w-80 border-r border-white/10 bg-white/5">
-        <div className="p-6 border-b border-white/10 flex flex-col gap-4">
-          <h2 className="text-xl font-bold tracking-tight">Messages</h2>
+        <div className="p-8 border-b border-white/10 flex flex-col gap-6">
+          <h2 className="text-2xl font-bold tracking-tight">Messages</h2>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
             <input 
               type="text" 
               placeholder="Search chats..."
-              className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs outline-none focus:border-brand-500/50 transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-6 py-3 text-sm outline-none focus:border-brand-500/50 transition-all"
             />
           </div>
         </div>
@@ -138,9 +138,9 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
           </AnimatePresence>
         </div>
 
-        <div className="p-6 bg-white/5 border-t border-white/10">
-          <form onSubmit={handleSend} className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-2xl focus-within:border-brand-500/50 transition-all">
+        <div className="p-6 bg-white/5 border-t border-white/10 w-full">
+          <form onSubmit={handleSend} className="flex flex-col gap-4 w-full">
+            <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-2xl focus-within:border-brand-500/50 transition-all w-full min-w-0">
               <button 
                 type="button" 
                 onClick={() => alert('Attachment feature coming soon!')}
@@ -153,7 +153,7 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type your message here..."
-                className="flex-1 bg-transparent border-none outline-none text-sm text-slate-200 placeholder:text-slate-600"
+                className="flex-1 min-w-0 bg-transparent border-none outline-none text-sm text-slate-200 placeholder:text-slate-600"
               />
               <button 
                 type="button" 

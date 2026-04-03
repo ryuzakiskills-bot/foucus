@@ -39,7 +39,7 @@ export default function Analytics({ sessions }: AnalyticsProps) {
   return (
     <div className="flex flex-col gap-8 h-full overflow-y-auto custom-scrollbar pr-2">
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
         {stats.map((stat, idx) => (
           <div key={idx} className="glass-card p-6 flex flex-col gap-2 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-16 h-16 bg-white/5 rounded-full -mr-8 -mt-8 group-hover:scale-150 transition-transform duration-500" />

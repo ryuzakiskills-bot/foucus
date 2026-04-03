@@ -62,20 +62,30 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarPr
       </div>
 
       {/* Mobile Bottom Nav */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 glass-card rounded-none border-x-0 border-b-0 z-50 flex items-center justify-around px-2">
-        {menuItems.map((item) => (
+      <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 glass-card rounded-none border-x-0 border-b-0 z-50 flex items-center justify-around px-1">
+        {menuItems.slice(0, 5).map((item) => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
             className={cn(
-              "flex flex-col items-center gap-1 p-2 rounded-lg transition-all cursor-pointer",
+              "flex flex-col items-center gap-1 p-1.5 rounded-lg transition-all cursor-pointer min-w-[60px]",
               activeTab === item.id ? "text-brand-400" : "text-slate-500"
             )}
           >
             <item.icon className="w-5 h-5" />
-            <span className="text-[10px] font-medium">{item.label}</span>
+            <span className="text-[9px] font-medium truncate w-full text-center">{item.label}</span>
           </button>
         ))}
+        <button
+          onClick={() => setActiveTab('settings')}
+          className={cn(
+            "flex flex-col items-center gap-1 p-1.5 rounded-lg transition-all cursor-pointer min-w-[60px]",
+            activeTab === 'settings' ? "text-brand-400" : "text-slate-500"
+          )}
+        >
+          <Settings className="w-5 h-5" />
+          <span className="text-[9px] font-medium">More</span>
+        </button>
       </div>
     </>
   );

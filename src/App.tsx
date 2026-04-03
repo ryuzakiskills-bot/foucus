@@ -104,14 +104,17 @@ export default function App() {
     setSessions([newSession, ...sessions]);
   };
 
-  const sendMessage = (text: string) => {
+  const sendMessage = (text: string, type: 'text' | 'image' | 'file' = 'text', url?: string, fileName?: string) => {
     const newMessage: ChatMessage = {
       id: Math.random().toString(36).substr(2, 9),
       text,
       senderId: 'user1',
       senderName: 'You',
       timestamp: Date.now(),
-      roomId: 'general'
+      roomId: 'general',
+      type,
+      url,
+      fileName
     };
     setMessages([...messages, newMessage]);
   };

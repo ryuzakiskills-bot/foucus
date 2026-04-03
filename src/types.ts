@@ -30,6 +30,9 @@ export interface ChatMessage {
   senderName: string;
   timestamp: number;
   roomId: string;
+  type?: 'text' | 'image' | 'file';
+  url?: string;
+  fileName?: string;
 }
 
 export interface UserProfile {

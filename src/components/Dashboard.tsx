@@ -19,7 +19,7 @@ interface DashboardProps {
   addTask: (title: string, category: Task['category']) => void;
   toggleTask: (id: string) => void;
   deleteTask: (id: string) => void;
-  sendMessage: (text: string) => void;
+  sendMessage: (text: string, type?: 'text' | 'image' | 'file', url?: string, fileName?: string) => void;
   handleSessionComplete: (type: 'work' | 'break', duration: number) => void;
   setIsAddTaskOpen: (open: boolean) => void;
   settings: any;

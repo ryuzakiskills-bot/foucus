@@ -1,24 +1,45 @@
-import React, { useState } from 'react';
-import { Send, User, Hash, Users, Search, MoreVertical, Paperclip, Smile } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Send, User, Hash, Users, Search, MoreVertical, Paperclip, Smile, Image as ImageIcon, File as FileIcon, X } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface ChatRoomProps {
   messages: ChatMessage[];
-  onSendMessage: (text: string) => void;
+  onSendMessage: (text: string, type?: 'text' | 'image' | 'file', url?: string, fileName?: string) => void;
   currentUserId: string;
 }
 
 export default function ChatRoom({ messages, onSendMessage, currentUserId }: ChatRoomProps) {
   const [input, setInput] = useState('');
   const [activeChat, setActiveChat] = useState('general');
+  const [selectedFile, setSelectedFile] = useState<{ file: File, type: 'image' | 'file', preview?: string } | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    if (input.trim()) {
-      onSendMessage(input.trim());
+    if (selectedFile) {
+      onSendMessage(
+        input.trim() || (selectedFile.type === 'image' ? 'Sent an image' : `Sent a file: ${selectedFile.file.name}`),
+        selectedFile.type,
+        selectedFile.preview,
+        selectedFile.file.name
+      );
+      setSelectedFile(null);
       setInput('');
+    } else if (input.trim()) {
+      onSendMessage(input.trim(), 'text');
+      setInput('');
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'file') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const preview = type === 'image' ? URL.createObjectURL(file) : undefined;
+      setSelectedFile({ file, type, preview });
     }
   };
 
@@ -130,6 +151,22 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
                       ? "bg-brand-500 text-white rounded-tr-none shadow-brand-500/10" 
                       : "bg-white/10 text-slate-200 rounded-tl-none shadow-black/20"
                   )}>
+                    {msg.type === 'image' && msg.url && (
+                      <div className="flex flex-col gap-2 mb-2">
+                        <img src={msg.url} alt="Shared" className="rounded-xl w-full max-w-sm h-auto border border-white/10" referrerPolicy="no-referrer" />
+                      </div>
+                    )}
+                    {msg.type === 'file' && (
+                      <div className="flex items-center gap-3 bg-black/20 p-3 rounded-xl mb-2 border border-white/5">
+                        <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center">
+                          <FileIcon className="w-5 h-5 text-brand-400" />
+                        </div>
+                        <div className="flex flex-col overflow-hidden">
+                          <span className="text-xs font-bold truncate">{msg.fileName}</span>
+                          <span className="text-[10px] opacity-50 uppercase tracking-widest">File Attachment</span>
+                        </div>
+                      </div>
+                    )}
                     {msg.text}
                   </div>
                 </div>
@@ -140,11 +177,59 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
 
         <div className="p-6 bg-white/5 border-t border-white/10 w-full">
           <form onSubmit={handleSend} className="flex flex-col gap-4 w-full">
+            {selectedFile && (
+              <div className="flex items-center gap-4 p-3 bg-brand-500/10 border border-brand-500/20 rounded-2xl animate-in fade-in slide-in-from-bottom-2">
+                {selectedFile.type === 'image' ? (
+                  <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10">
+                    <img src={selectedFile.preview} className="w-full h-full object-cover" alt="Preview" referrerPolicy="no-referrer" />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+                    <FileIcon className="w-8 h-8 text-brand-400" />
+                  </div>
+                )}
+                <div className="flex-1 flex flex-col gap-1 overflow-hidden">
+                  <span className="text-sm font-bold truncate">{selectedFile.file.name}</span>
+                  <span className="text-[10px] text-brand-400 uppercase tracking-widest font-bold">Ready to send</span>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={() => setSelectedFile(null)}
+                  className="p-2 hover:bg-white/10 rounded-xl text-slate-400 hover:text-rose-400 transition-all"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+
             <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-2xl focus-within:border-brand-500/50 transition-all w-full min-w-0">
+              <input 
+                type="file" 
+                ref={imageInputRef} 
+                className="hidden" 
+                accept="image/*" 
+                onChange={(e) => handleFileChange(e, 'image')} 
+              />
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                className="hidden" 
+                onChange={(e) => handleFileChange(e, 'file')} 
+              />
+              
               <button 
                 type="button" 
-                onClick={() => alert('Attachment feature coming soon!')}
+                onClick={() => imageInputRef.current?.click()}
                 className="p-1 hover:text-brand-400 transition-all text-slate-500 cursor-pointer"
+                title="Send Image"
+              >
+                <ImageIcon className="w-5 h-5" />
+              </button>
+              <button 
+                type="button" 
+                onClick={() => fileInputRef.current?.click()}
+                className="p-1 hover:text-brand-400 transition-all text-slate-500 cursor-pointer"
+                title="Send File"
               >
                 <Paperclip className="w-5 h-5" />
               </button>
@@ -152,7 +237,7 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Type your message here..."
+                placeholder={selectedFile ? "Add a caption..." : "Type your message here..."}
                 className="flex-1 min-w-0 bg-transparent border-none outline-none text-sm text-slate-200 placeholder:text-slate-600"
               />
               <button 

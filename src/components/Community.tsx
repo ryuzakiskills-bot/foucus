@@ -61,6 +61,8 @@ export default function Community() {
   ]);
   const [newMessage, setNewMessage] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   // User/Private Chat State
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
@@ -91,18 +93,21 @@ export default function Community() {
     setNewMessage('');
   };
 
-  const handleFileUpload = (type: 'image' | 'file') => {
-    // Simulated upload
-    const msg: Message = {
-      id: Math.random().toString(36).substr(2, 9),
-      sender: 'You',
-      text: type === 'image' ? 'Sent an image' : 'Sent a file',
-      timestamp: Date.now(),
-      type: type,
-      url: type === 'image' ? 'https://picsum.photos/seed/focus/400/300' : '#'
-    };
-    setMessages(prev => [...prev, msg]);
-    showNotification(`${type === 'image' ? 'Image' : 'File'} uploaded!`);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'file') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      const msg: Message = {
+        id: Math.random().toString(36).substr(2, 9),
+        sender: 'You',
+        text: type === 'image' ? 'Sent an image' : `Sent a file: ${file.name}`,
+        timestamp: Date.now(),
+        type: type,
+        url: url
+      };
+      setMessages(prev => [...prev, msg]);
+      showNotification(`${type === 'image' ? 'Image' : 'File'} uploaded!`);
+    }
   };
 
   const users: UserProfile[] = [
@@ -373,17 +378,32 @@ export default function Community() {
 
             <form onSubmit={handleSendMessage} className="p-3 md:p-4 border-t border-white/5 flex flex-col gap-2 w-full">
               <div className="flex items-center gap-2 w-full min-w-0">
+                <input 
+                  type="file" 
+                  ref={imageInputRef} 
+                  className="hidden" 
+                  accept="image/*" 
+                  onChange={(e) => handleFileChange(e, 'image')} 
+                />
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  onChange={(e) => handleFileChange(e, 'file')} 
+                />
                 <button 
                   type="button" 
-                  onClick={() => handleFileUpload('image')}
+                  onClick={() => imageInputRef.current?.click()}
                   className="p-1.5 md:p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-brand-400 transition-all"
+                  title="Send Image"
                 >
                   <ImageIcon className="w-3 h-3 md:w-4 md:h-4" />
                 </button>
                 <button 
                   type="button" 
-                  onClick={() => handleFileUpload('file')}
+                  onClick={() => fileInputRef.current?.click()}
                   className="p-1.5 md:p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-brand-400 transition-all"
+                  title="Send File"
                 >
                   <Paperclip className="w-3 h-3 md:w-4 md:h-4" />
                 </button>

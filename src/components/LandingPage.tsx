@@ -6,12 +6,14 @@ import {
   CheckCircle2, ArrowRight, Play, Star, Globe, Lock
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useI18n } from '../lib/I18nContext';
 
 interface LandingPageProps {
   onStart: () => void;
 }
 
 export default function LandingPage({ onStart }: LandingPageProps) {
+  const { language, setLanguage } = useI18n();
   return (
     <div className="min-h-screen bg-slate-950 text-white selection:bg-brand-500/30 overflow-x-hidden">
       {/* Navigation */}
@@ -26,6 +28,26 @@ export default function LandingPage({ onStart }: LandingPageProps) {
           </div>
 
           <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-1 p-1 bg-white/5 rounded-xl border border-white/10 mr-2">
+              <button 
+                onClick={() => setLanguage('en')}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
+                  language === 'en' ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20" : "text-slate-500 hover:text-slate-300"
+                )}
+              >
+                EN
+              </button>
+              <button 
+                onClick={() => setLanguage('darija')}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
+                  language === 'darija' ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20" : "text-slate-500 hover:text-slate-300"
+                )}
+              >
+                DR
+              </button>
+            </div>
             <button 
               onClick={onStart}
               className="text-sm font-medium text-slate-400 hover:text-white transition-colors"

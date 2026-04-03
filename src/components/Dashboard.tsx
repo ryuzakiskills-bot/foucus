@@ -6,9 +6,14 @@ import ChatRoom from './ChatRoom';
 import Analytics from './Analytics';
 import Community from './Community';
 import AICoach from './AICoach';
-import { Task, FocusSession, ChatMessage } from '../types';
-import { Zap, Target, TrendingUp, Users, Brain, Plus, Flame, Trophy, Calendar, Share2 } from 'lucide-react';
+import DailyTracker from './DailyTracker';
+import WeeklyAnalysis from './WeeklyAnalysis';
+import HabitTracker from './HabitTracker';
+import AdminDashboard from './AdminDashboard';
+import { Task, FocusSession, ChatMessage, DailyLog, Habit, WeeklyStat, UserProfile } from '../types';
+import { Zap, Target, TrendingUp, Users, Brain, Plus, Flame, Trophy, Calendar, Share2, Globe, CheckSquare, Clock, BarChart3 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useI18n } from '../lib/I18nContext';
 
 interface DashboardProps {
   activeTab: string;
@@ -16,226 +21,157 @@ interface DashboardProps {
   tasks: Task[];
   sessions: FocusSession[];
   messages: ChatMessage[];
+  dailyLogs: DailyLog[];
+  habits: Habit[];
+  weeklyStats: WeeklyStat[];
   addTask: (title: string, category: Task['category']) => void;
   toggleTask: (id: string) => void;
   deleteTask: (id: string) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   sendMessage: (text: string, type?: 'text' | 'image' | 'file', url?: string, fileName?: string) => void;
   handleSessionComplete: (type: 'work' | 'break', duration: number) => void;
+  addDailyLog: (log: Omit<DailyLog, 'id' | 'userId' | 'createdAt'>) => void;
+  addHabit: (name: string, targetDays: number) => void;
+  deleteHabit: (id: string) => void;
+  updateHabit: (id: string, completedDays: number) => void;
   setIsAddTaskOpen: (open: boolean) => void;
   onInviteFriends: () => void;
   settings: any;
   setSettings: (settings: any) => void;
+  user: any;
 }
 
 export default function Dashboard({ 
-  activeTab, setActiveTab, tasks, sessions, messages, 
+  activeTab, setActiveTab, tasks, sessions, messages, dailyLogs, habits, weeklyStats,
   addTask, toggleTask, deleteTask, updateTask, sendMessage, 
-  handleSessionComplete, setIsAddTaskOpen, onInviteFriends, settings, setSettings 
+  handleSessionComplete, addDailyLog, addHabit, deleteHabit, updateHabit,
+  setIsAddTaskOpen, onInviteFriends, settings, setSettings, user
 }: DashboardProps) {
-
-  const [performanceTimeframe, setPerformanceTimeframe] = React.useState<'daily' | 'weekly' | 'monthly'>('weekly');
+  const { t, language, setLanguage, isRTL } = useI18n();
 
   const totalFocusTime = sessions.filter(s => s.type === 'work').reduce((acc, s) => acc + s.duration, 0);
-  const dailyGoal = 240; // 4 hours in minutes
-  const progress = Math.min((totalFocusTime / dailyGoal) * 100, 100);
+  const completedTasksCount = tasks.filter(t => t.completed).length;
+  const productivityScore = Math.round((completedTasksCount / (tasks.length || 1)) * 100);
 
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 md:gap-12 h-full">
-            <div className="lg:col-span-2 flex flex-col gap-10 md:gap-12">
-              {/* Welcome & Progress */}
-              <div className="glass-card p-8 md:p-12 bg-gradient-to-br from-slate-900/50 to-brand-500/5 border-brand-500/10">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-10 mb-10 md:mb-12">
-                  <div className="text-center sm:text-left">
-                    <h2 className="text-2xl md:text-4xl font-bold tracking-tight mb-2">Welcome back, Focus Master! 🚀</h2>
-                    <p className="text-slate-400 text-sm md:text-base">You're on a <span className="text-brand-400 font-bold">5 day streak</span>. Keep it up!</p>
-                  </div>
-                  <div className="flex items-center justify-center sm:justify-end gap-3">
-                    <div className="flex flex-col items-end">
-                      <span className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">Daily Goal</span>
-                      <span className="text-xs md:text-sm font-bold text-brand-400">{totalFocusTime} / {dailyGoal} min</span>
-                    </div>
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-4 border-white/5 flex items-center justify-center relative">
-                      <svg className="w-full h-full -rotate-90">
-                        <circle
-                          cx={window.innerWidth < 768 ? 20 : 24}
-                          cy={window.innerWidth < 768 ? 20 : 24}
-                          r={window.innerWidth < 768 ? 16 : 20}
-                          fill="transparent"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          strokeDasharray={window.innerWidth < 768 ? 100.5 : 125.6}
-                          strokeDashoffset={(window.innerWidth < 768 ? 100.5 : 125.6) - ((window.innerWidth < 768 ? 100.5 : 125.6) * progress) / 100}
-                          className="text-brand-500 transition-all duration-1000"
-                        />
-                      </svg>
-                      <span className="absolute text-[8px] md:text-[10px] font-bold">{Math.round(progress)}%</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="w-full h-1.5 md:h-2 bg-white/5 rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    className="h-full bg-gradient-to-r from-brand-500 to-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.4)]"
-                  />
-                </div>
+          <div className="flex flex-col gap-10">
+            {/* Top Bar SaaS Style */}
+            <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-4", isRTL && "sm:flex-row-reverse")}>
+              <div className={cn("flex flex-col gap-1", isRTL && "items-end")}>
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+                  {t('welcomeBackName', { name: user?.name || 'User' })}
+                </h2>
+                <p className="text-slate-400 text-sm">{t('streak', { count: 5 })}</p>
               </div>
-
-              {/* Stats Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 md:gap-8">
+              <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
                 <button 
-                  onClick={() => setActiveTab('analytics')}
-                  className="glass-card p-4 md:p-6 flex flex-col gap-1 md:gap-2 hover:bg-white/10 transition-all cursor-pointer text-left group"
+                  onClick={() => setSettings({ ...settings, darkMode: !settings.darkMode })}
+                  className="p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400 text-[10px] md:text-sm font-medium">Total Focus</span>
-                    <Zap className="w-3 h-3 md:w-4 md:h-4 text-brand-400 group-hover:scale-110 transition-transform" />
-                  </div>
-                  <span className="text-xl md:text-3xl font-bold">{totalFocusTime}m</span>
-                  <span className="text-[8px] md:text-xs text-brand-400 flex items-center gap-1">
-                    <TrendingUp className="w-2 h-2 md:w-3 md:h-3" /> +12.5%
-                  </span>
+                  {settings.darkMode ? <Globe className="w-5 h-5 text-brand-400" /> : <Zap className="w-5 h-5 text-amber-400" />}
                 </button>
-                <button 
-                  onClick={() => setActiveTab('tasks')}
-                  className="glass-card p-4 md:p-6 flex flex-col gap-1 md:gap-2 hover:bg-white/10 transition-all cursor-pointer text-left group"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400 text-[10px] md:text-sm font-medium">Tasks Done</span>
-                    <Target className="w-3 h-3 md:w-4 md:h-4 text-brand-400 group-hover:scale-110 transition-transform" />
-                  </div>
-                  <span className="text-xl md:text-3xl font-bold">{tasks.filter(t => t.completed).length}</span>
-                  <span className="text-[8px] md:text-xs text-slate-500">Out of {tasks.length}</span>
-                </button>
-                <button 
-                  onClick={() => setActiveTab('community')}
-                  className="glass-card p-4 md:p-6 flex flex-col gap-1 md:gap-2 hover:bg-white/10 transition-all cursor-pointer text-left group col-span-2 sm:col-span-1"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400 text-[10px] md:text-sm font-medium">Community</span>
-                    <Users className="w-3 h-3 md:w-4 md:h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
-                  </div>
-                  <span className="text-xl md:text-3xl font-bold">12</span>
-                  <span className="text-[8px] md:text-xs text-brand-400">Active now</span>
-                </button>
-              </div>
-
-              {/* AI Coach Insight */}
-              <AICoach sessions={sessions} />
-
-              <div className="flex-1 glass-card p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold capitalize">{performanceTimeframe} Performance</h3>
-                  <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl border border-white/10">
-                    {(['daily', 'weekly', 'monthly'] as const).map((t) => (
-                      <button
-                        key={t}
-                        onClick={() => setPerformanceTimeframe(t)}
-                        className={cn(
-                          "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
-                          performanceTimeframe === t 
-                            ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20" 
-                            : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
-                        )}
-                      >
-                        {t === 'daily' ? 'Today' : t === 'weekly' ? '7 Days' : '30 Days'}
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl border border-white/10">
+                  <button onClick={() => setLanguage('en')} className={cn("px-3 py-1.5 rounded-lg text-[10px] font-bold", language === 'en' ? "bg-brand-500 text-white" : "text-slate-500")}>EN</button>
+                  <button onClick={() => setLanguage('darija')} className={cn("px-3 py-1.5 rounded-lg text-[10px] font-bold", language === 'darija' ? "bg-brand-500 text-white" : "text-slate-500")}>DR</button>
                 </div>
-                <Analytics sessions={sessions} timeframe={performanceTimeframe} />
               </div>
             </div>
 
-            <div className="flex flex-col gap-6">
-              {/* Quick Tasks */}
-              <div className="glass-card p-6 flex-1 flex flex-col">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Quick Tasks</h3>
-                  <button 
-                    onClick={() => setIsAddTaskOpen(true)}
-                    className="p-1.5 hover:bg-white/5 rounded-lg transition-all text-slate-500 hover:text-brand-400"
-                  >
+            {/* 3 Stat Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {[
+                { icon: CheckSquare, label: t('totalTasks'), value: tasks.length, sub: `${completedTasksCount} ${t('completed')}`, color: 'text-emerald-400' },
+                { icon: Clock, label: t('focusHoursToday'), value: `${(totalFocusTime / 60).toFixed(1)}h`, sub: t('dailyGoal'), color: 'text-brand-400' },
+                { icon: TrendingUp, label: t('productivityScore'), value: `${productivityScore}%`, sub: t('performance'), color: 'text-indigo-400' }
+              ].map((stat, idx) => (
+                <motion.div 
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="glass-card p-6 flex flex-col gap-4 relative overflow-hidden group"
+                >
+                  <div className="absolute top-[-20%] right-[-10%] w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-all" />
+                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{stat.label}</span>
+                    <stat.icon className={cn("w-4 h-4", stat.color)} />
+                  </div>
+                  <div className={cn("flex flex-col", isRTL && "items-end")}>
+                    <span className="text-3xl font-black text-white tracking-tight">{stat.value}</span>
+                    <span className="text-[10px] text-slate-500 font-medium">{stat.sub}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Chart Section */}
+              <div className="lg:col-span-2 flex flex-col gap-6">
+                <div className="glass-card p-8 flex flex-col gap-8">
+                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                    <h3 className="text-sm font-bold text-slate-200 uppercase tracking-widest">{t('weeklyFocusChart')}</h3>
+                    <BarChart3 className="w-4 h-4 text-slate-500" />
+                  </div>
+                  <Analytics sessions={sessions} timeframe="weekly" />
+                </div>
+                <AICoach sessions={sessions} />
+              </div>
+
+              {/* Recent Tasks */}
+              <div className="glass-card p-6 flex flex-col gap-6">
+                <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                  <h3 className="text-sm font-bold text-slate-200 uppercase tracking-widest">{t('recentTasks')}</h3>
+                  <button onClick={() => setIsAddTaskOpen(true)} className="p-1.5 hover:bg-white/5 rounded-lg transition-all text-brand-400">
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
-                <TaskBoard 
-                  tasks={tasks.slice(0, 5)} 
-                  onAddTask={addTask} 
-                  onToggleTask={toggleTask} 
-                  onDeleteTask={deleteTask} 
-                  onUpdateTask={updateTask}
-                />
-              </div>
-
-              {/* Quick Actions */}
-              <div className="glass-card p-6 flex flex-col gap-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-brand-400" />
-                  Quick Actions
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <button 
-                    onClick={onInviteFriends}
-                    className="flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-brand-500/10 text-brand-400 hover:bg-brand-500/20 transition-all cursor-pointer group border border-brand-500/20"
-                  >
-                    <Share2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                    <span className="font-bold text-sm">Invite Friends</span>
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab('focus')}
-                    className="flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-all cursor-pointer group border border-indigo-500/20"
-                  >
-                    <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
-                    <span className="font-bold text-sm">Live Session</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Achievements */}
-              <div className="glass-card p-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Trophy className="w-5 h-5 text-amber-400" />
-                  Achievements
-                </h3>
-                <div className="flex flex-wrap gap-3">
-                  {[
-                    { icon: Flame, color: "text-orange-500", label: "5 Day Streak" },
-                    { icon: Zap, color: "text-brand-400", label: "Deep Diver" },
-                    { icon: Target, color: "text-brand-400", label: "Goal Crusher" }
-                  ].map((badge, i) => (
-                    <div key={i} className="flex flex-col items-center gap-2 group cursor-help">
-                      <div className={cn(
-                        "w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-all",
-                        badge.color
+                <div className="flex flex-col gap-3">
+                  {tasks.slice(0, 6).map((task) => (
+                    <div key={task.id} className={cn("flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition-all", isRTL && "flex-row-reverse")}>
+                      <button 
+                        onClick={() => toggleTask(task.id)}
+                        className={cn(
+                          "w-5 h-5 rounded-md border flex items-center justify-center transition-all",
+                          task.completed ? "bg-emerald-500 border-emerald-500 text-white" : "border-white/20 text-transparent"
+                        )}
+                      >
+                        <CheckSquare className="w-3 h-3" />
+                      </button>
+                      <span className={cn(
+                        "text-xs font-medium flex-1 truncate",
+                        task.completed ? "text-slate-500 line-through" : "text-slate-200",
+                        isRTL && "text-right"
                       )}>
-                        <badge.icon className="w-6 h-6" />
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">{badge.label}</span>
+                        {task.title}
+                      </span>
                     </div>
                   ))}
                 </div>
+                <button 
+                  onClick={() => setActiveTab('tasks')}
+                  className="mt-auto text-[10px] font-bold text-brand-400 uppercase tracking-widest hover:text-brand-300 transition-all text-center"
+                >
+                  View All Tasks
+                </button>
               </div>
             </div>
           </div>
         );
-      case 'focus':
-        return (
-          <div className="flex flex-col items-center justify-start md:justify-center min-h-full py-8">
-            <div className="w-full max-w-2xl">
-              <Timer onSessionComplete={handleSessionComplete} />
-            </div>
-          </div>
-        );
+      case 'daily':
+        return <DailyTracker onSaveLog={addDailyLog} logs={dailyLogs} />;
+      case 'weekly':
+        return <WeeklyAnalysis stats={weeklyStats} />;
+      case 'habits':
+        return <HabitTracker habits={habits} onAddHabit={addHabit} onDeleteHabit={deleteHabit} onUpdateHabit={updateHabit} />;
+      case 'admin':
+        return user?.role === 'admin' ? <AdminDashboard currentUser={user as UserProfile} /> : <div className="p-8 text-center text-rose-400 font-bold">403 Forbidden</div>;
       case 'tasks':
         return (
           <div className="h-full flex flex-col gap-6">
-            <h2 className="text-2xl font-bold">Your Tasks</h2>
+            <h2 className={cn("text-2xl font-bold", isRTL && "text-right")}>{t('tasks')}</h2>
             <div className="flex-1">
               <TaskBoard 
                 tasks={tasks} 
@@ -248,97 +184,77 @@ export default function Dashboard({
           </div>
         );
       case 'chat':
-        return (
-          <div className="h-full">
-            <ChatRoom messages={messages} onSendMessage={sendMessage} currentUserId="user1" />
-          </div>
-        );
+        return <ChatRoom messages={messages} onSendMessage={sendMessage} currentUserId="user1" />;
       case 'community':
-        return (
-          <div className="h-full">
-            <Community />
-          </div>
-        );
-      case 'analytics':
-        return (
-          <div className="h-full flex flex-col gap-6">
-            <h2 className="text-2xl font-bold">Performance Analytics</h2>
-            <div className="flex-1">
-              <Analytics sessions={sessions} />
-            </div>
-          </div>
-        );
+        return <Community />;
       case 'settings':
         return (
-          <div className="h-full flex flex-col gap-6">
-            <h2 className="text-2xl font-bold">Settings</h2>
-            <div className="glass-card p-8 max-w-2xl flex flex-col gap-8">
-              <div className="flex flex-col gap-4">
-                <h3 className="text-lg font-semibold">Profile Settings</h3>
-                <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-brand-400 to-indigo-500 border-2 border-white/20" />
-                  <div className="flex-1 flex flex-col gap-2">
-                    <label className="text-sm text-slate-400">Display Name</label>
+          <div className="h-full flex flex-col gap-8 max-w-3xl mx-auto">
+            <header className={cn("flex flex-col gap-2", isRTL && "items-end")}>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">{t('settings')}</h2>
+              <p className="text-slate-400">{t('profileSettings')}</p>
+            </header>
+
+            <div className="glass-card p-8 flex flex-col gap-10">
+              {/* Profile Info */}
+              <div className="flex flex-col gap-6">
+                <h3 className={cn("text-xs font-bold text-slate-500 uppercase tracking-widest", isRTL && "text-right")}>{t('profileInfo')}</h3>
+                <div className={cn("flex items-center gap-6", isRTL && "flex-row-reverse")}>
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-400 to-indigo-500 border-2 border-white/20 shadow-xl flex items-center justify-center text-2xl font-black text-white">
+                    {user?.name?.[0] || 'U'}
+                  </div>
+                  <div className={cn("flex-1 flex flex-col gap-2", isRTL && "items-end")}>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('displayName')}</label>
                     <input 
                       type="text" 
-                      defaultValue="Focus Master" 
-                      className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-brand-500/50"
+                      defaultValue={user?.name || 'Focus Master'} 
+                      className={cn(
+                        "bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500/50 w-full",
+                        isRTL && "text-right"
+                      )}
                     />
                   </div>
                 </div>
               </div>
-              
-              <div className="flex flex-col gap-4 pt-8 border-t border-white/10">
-                <h3 className="text-lg font-semibold">App Preferences</h3>
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">Dark Mode</span>
-                    <span className="text-xs text-slate-500">Always active for better focus</span>
+
+              {/* Preferences */}
+              <div className="flex flex-col gap-6 pt-10 border-t border-white/5">
+                <h3 className={cn("text-xs font-bold text-slate-500 uppercase tracking-widest", isRTL && "text-right")}>{t('appPreferences')}</h3>
+                
+                <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                  <div className={cn("flex flex-col", isRTL && "items-end")}>
+                    <span className="text-sm font-bold text-slate-200">{t('language')}</span>
+                    <span className="text-[10px] text-slate-500 font-medium">{t('chooseLanguage')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/5 p-1 rounded-xl border border-white/10">
+                    <button onClick={() => setLanguage('en')} className={cn("px-4 py-2 rounded-lg text-xs font-bold transition-all", language === 'en' ? "bg-brand-500 text-white" : "text-slate-500")}>English</button>
+                    <button onClick={() => setLanguage('darija')} className={cn("px-4 py-2 rounded-lg text-xs font-bold transition-all", language === 'darija' ? "bg-brand-500 text-white" : "text-slate-500")}>Darija</button>
+                  </div>
+                </div>
+
+                <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                  <div className={cn("flex flex-col", isRTL && "items-end")}>
+                    <span className="text-sm font-bold text-slate-200">{t('darkMode')}</span>
+                    <span className="text-[10px] text-slate-500 font-medium">Always active for better focus</span>
                   </div>
                   <button 
                     onClick={() => setSettings({ ...settings, darkMode: !settings.darkMode })}
                     className={cn(
-                      "w-12 h-6 rounded-full flex items-center px-1 transition-all cursor-pointer",
+                      "w-14 h-7 rounded-full flex items-center px-1 transition-all",
                       settings.darkMode ? "bg-brand-500 justify-end" : "bg-white/10 justify-start"
                     )}
                   >
-                    <div className="w-4 h-4 bg-white rounded-full shadow-sm" />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">Sound Notifications</span>
-                    <span className="text-xs text-slate-500">Play sound when timer ends</span>
-                  </div>
-                  <button 
-                    onClick={() => setSettings({ ...settings, soundEnabled: !settings.soundEnabled })}
-                    className={cn(
-                      "w-12 h-6 rounded-full flex items-center px-1 transition-all cursor-pointer",
-                      settings.soundEnabled ? "bg-brand-500 justify-end" : "bg-white/10 justify-start"
-                    )}
-                  >
-                    <div className="w-4 h-4 bg-white rounded-full shadow-sm" />
+                    <div className="w-5 h-5 bg-white rounded-full shadow-lg" />
                   </button>
                 </div>
               </div>
 
-              <button 
-                onClick={() => {
-                  const btn = document.activeElement as HTMLButtonElement;
-                  if (btn) {
-                    const originalText = btn.innerText;
-                    btn.innerText = 'Saved!';
-                    btn.disabled = true;
-                    setTimeout(() => {
-                      btn.innerText = originalText;
-                      btn.disabled = false;
-                    }, 2000);
-                  }
-                }}
-                className="bg-brand-500 hover:bg-brand-600 disabled:bg-brand-500 text-white font-semibold py-3 rounded-xl transition-all"
-              >
-                Save Changes
-              </button>
+              {/* Danger Zone */}
+              <div className="flex flex-col gap-4 pt-10 border-t border-white/5">
+                <button className="text-rose-400 hover:text-rose-300 text-xs font-bold uppercase tracking-widest transition-all text-left">
+                  {t('deleteAccount')}
+                </button>
+              </div>
             </div>
           </div>
         );

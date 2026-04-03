@@ -12,15 +12,39 @@ interface AuthProps {
 export default function Auth({ onLogin, onClose }: AuthProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    token: ''
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate auth
-    setTimeout(() => {
-      onLogin({ id: 'user1', name: 'Focus Master', email: 'user@example.com' });
+    setError(null);
+
+    try {
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Authentication failed');
+      }
+
+      onLogin(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -49,6 +73,13 @@ export default function Auth({ onLogin, onClose }: AuthProps) {
           </p>
         </div>
 
+        {error && (
+          <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-xl text-xs font-bold flex items-center gap-2">
+            <Zap className="w-4 h-4" />
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-4">
           <button className="flex items-center justify-center gap-2 py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all text-sm font-bold">
             <Chrome className="w-4 h-4" />
@@ -70,6 +101,23 @@ export default function Auth({ onLogin, onClose }: AuthProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {!isLogin && (
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
+              <div className="relative">
+                <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <input 
+                  required
+                  type="text"
+                  placeholder="John Doe"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-sm outline-none focus:border-brand-500/50 transition-all"
+                />
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
             <div className="relative">
@@ -78,6 +126,8 @@ export default function Auth({ onLogin, onClose }: AuthProps) {
                 required
                 type="email"
                 placeholder="name@company.com"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-sm outline-none focus:border-brand-500/50 transition-all"
               />
             </div>
@@ -91,10 +141,29 @@ export default function Auth({ onLogin, onClose }: AuthProps) {
                 required
                 type="password"
                 placeholder="••••••••"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-sm outline-none focus:border-brand-500/50 transition-all"
               />
             </div>
           </div>
+
+          {!isLogin && (
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Invitation Token</label>
+              <div className="relative">
+                <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <input 
+                  required
+                  type="text"
+                  placeholder="XXXX-XXXX"
+                  value={formData.token}
+                  onChange={(e) => setFormData({ ...formData, token: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-sm outline-none focus:border-brand-500/50 transition-all"
+                />
+              </div>
+            </div>
+          )}
 
           {isLogin && (
             <button type="button" className="text-xs text-brand-400 hover:underline text-right font-bold">

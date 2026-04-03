@@ -2,12 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Play, Pause, RotateCcw, Coffee, Brain, Settings, Plus, Minus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
+import { useI18n } from '../lib/I18nContext';
 
 interface TimerProps {
   onSessionComplete?: (type: 'work' | 'break', duration: number) => void;
 }
 
 export default function Timer({ onSessionComplete }: TimerProps) {
+  const { t, isRTL } = useI18n();
   const [workDuration, setWorkDuration] = useState(25);
   const [breakDuration, setBreakDuration] = useState(5);
   const [timeLeft, setTimeLeft] = useState(workDuration * 60);
@@ -85,32 +87,37 @@ export default function Timer({ onSessionComplete }: TimerProps) {
       )} />
       
       {/* Session Counter */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-8 flex items-center gap-2 px-2 md:px-3 py-1 bg-white/5 rounded-full border border-white/10 z-20">
+      <div className={cn(
+        "absolute top-4 md:top-6 flex items-center gap-2 px-2 md:px-3 py-1 bg-white/5 rounded-full border border-white/10 z-20",
+        isRTL ? "left-4 md:left-8 flex-row-reverse" : "right-4 md:right-8"
+      )}>
         <div className={cn("w-1 md:w-1.5 h-1 md:h-1.5 rounded-full animate-pulse", mode === 'work' ? "bg-brand-400" : "bg-emerald-400")} />
-        <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Session {sessionCount}</span>
+        <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('session')} {sessionCount}</span>
       </div>
 
       {/* Mode Switcher */}
-      <div className="flex gap-2 p-1.5 bg-white/5 rounded-2xl border border-white/10 relative z-10 shadow-inner">
+      <div className={cn("flex gap-2 p-1.5 bg-white/5 rounded-2xl border border-white/10 relative z-10 shadow-inner", isRTL && "flex-row-reverse")}>
         <button
           onClick={() => handleModeChange('work')}
           className={cn(
             "flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300",
-            mode === 'work' ? "bg-brand-500 text-white shadow-lg shadow-brand-500/30 scale-105" : "text-slate-400 hover:text-white hover:bg-white/5"
+            mode === 'work' ? "bg-brand-500 text-white shadow-lg shadow-brand-500/30 scale-105" : "text-slate-400 hover:text-white hover:bg-white/5",
+            isRTL && "flex-row-reverse"
           )}
         >
           <Brain className="w-4 h-4" />
-          Focus
+          {t('focus')}
         </button>
         <button
           onClick={() => handleModeChange('break')}
           className={cn(
             "flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300",
-            mode === 'break' ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-105" : "text-slate-400 hover:text-white hover:bg-white/5"
+            mode === 'break' ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-105" : "text-slate-400 hover:text-white hover:bg-white/5",
+            isRTL && "flex-row-reverse"
           )}
         >
           <Coffee className="w-4 h-4" />
-          Break
+          {t('break')}
         </button>
       </div>
 
@@ -162,7 +169,7 @@ export default function Timer({ onSessionComplete }: TimerProps) {
             "text-[10px] font-black uppercase tracking-[0.4em] mt-2 transition-colors duration-700",
             mode === 'work' ? "text-brand-400" : "text-emerald-400"
           )}>
-            {mode === 'work' ? 'Deep Work' : 'Resting'}
+            {mode === 'work' ? t('deepWork') : t('resting')}
           </span>
         </div>
       </div>
@@ -177,7 +184,7 @@ export default function Timer({ onSessionComplete }: TimerProps) {
             <Minus className="w-4 h-4" />
           </button>
           <div className="flex flex-col items-center">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Duration</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('duration')}</span>
             <span className={cn(
               "text-lg font-bold transition-colors duration-700",
               mode === 'work' ? "text-brand-400" : "text-emerald-400"
@@ -240,7 +247,7 @@ export default function Timer({ onSessionComplete }: TimerProps) {
             className="absolute inset-0 z-20 bg-slate-950/95 backdrop-blur-xl p-8 flex flex-col gap-8"
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold tracking-tight">Timer Configuration</h3>
+              <h3 className="text-xl font-bold tracking-tight">{t('timerConfig')}</h3>
               <div className="flex items-center gap-4">
                 <button 
                   onClick={() => {
@@ -250,7 +257,7 @@ export default function Timer({ onSessionComplete }: TimerProps) {
                   }}
                   className="text-[10px] text-slate-500 hover:text-brand-400 font-bold uppercase tracking-widest transition-colors"
                 >
-                  Reset Defaults
+                  {t('resetDefaults')}
                 </button>
                 <button onClick={() => setShowSettings(false)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
                   <X className="w-5 h-5" />
@@ -261,7 +268,7 @@ export default function Timer({ onSessionComplete }: TimerProps) {
             <div className="space-y-8">
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Focus Session</label>
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('focusSession')}</label>
                   <span className="text-brand-400 font-bold">{workDuration} min</span>
                 </div>
                 <input 
@@ -295,7 +302,7 @@ export default function Timer({ onSessionComplete }: TimerProps) {
 
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Break Session</label>
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('breakSession')}</label>
                   <span className="text-indigo-400 font-bold">{breakDuration} min</span>
                 </div>
                 <input 
@@ -331,7 +338,7 @@ export default function Timer({ onSessionComplete }: TimerProps) {
                 onClick={() => setShowSettings(false)}
                 className="w-full py-4 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl font-bold transition-all shadow-xl shadow-brand-500/20"
               >
-                Apply Configuration
+                {t('applyConfig')}
               </button>
             </div>
           </motion.div>
@@ -340,7 +347,7 @@ export default function Timer({ onSessionComplete }: TimerProps) {
 
       <div className="flex flex-col items-center gap-3 text-center mt-auto">
         <p className="text-slate-300 text-sm font-medium tracking-tight">
-          {mode === 'work' ? "Stay focused, you're doing great." : "Relax and recharge."}
+          {mode === 'work' ? t('stayFocused') : t('relaxRecharge')}
         </p>
         <div className="flex items-center gap-2">
           {[1, 2, 3, 4].map(i => (
@@ -354,7 +361,7 @@ export default function Timer({ onSessionComplete }: TimerProps) {
               className="w-2 h-2 rounded-full" 
             />
           ))}
-          <span className="text-[10px] text-slate-500 font-black ml-2 uppercase tracking-[0.2em]">Session 2/4</span>
+          <span className="text-[10px] text-slate-500 font-black ml-2 uppercase tracking-[0.2em]">{t('session')} 2/4</span>
         </div>
       </div>
     </div>

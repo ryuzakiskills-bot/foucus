@@ -4,12 +4,15 @@ import Sidebar from './components/Sidebar';
 import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
 import Auth from './components/Auth';
+import AdminDashboard from './components/AdminDashboard';
 import Logo from './components/Logo';
-import { Task, FocusSession, ChatMessage } from './types';
+import { Task, FocusSession, ChatMessage, DailyLog, Habit, WeeklyStat, UserProfile } from './types';
 import { Zap, Plus, AlertCircle, RefreshCcw } from 'lucide-react';
 import { cn } from './lib/utils';
+import { I18nProvider, useI18n } from './lib/I18nContext';
 
-export default function App() {
+function AppContent() {
+  const { t, language, setLanguage, isRTL } = useI18n();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -21,7 +24,7 @@ export default function App() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const [user, setUser] = useState<any>(() => {
+  const [user, setUser] = useState<UserProfile | null>(() => {
     const saved = localStorage.getItem('focusflow_user');
     return saved ? JSON.parse(saved) : null;
   });
@@ -47,7 +50,7 @@ export default function App() {
 
   const handleInviteFriends = () => {
     navigator.clipboard.writeText('https://focusflow.app/join/room123');
-    showNotification('Invite link copied to clipboard! 🔗');
+    showNotification(t('inviteCopied'));
     setActiveTab('community');
   };
 
@@ -58,6 +61,21 @@ export default function App() {
   const [sessions, setSessions] = useState<FocusSession[]>(() => {
     const saved = localStorage.getItem('focusflow_sessions');
     return saved ? JSON.parse(saved) : [];
+  });
+  const [dailyLogs, setDailyLogs] = useState<DailyLog[]>(() => {
+    const saved = localStorage.getItem('focusflow_daily_logs');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [habits, setHabits] = useState<Habit[]>(() => {
+    const saved = localStorage.getItem('focusflow_habits');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [weeklyStats, setWeeklyStats] = useState<WeeklyStat[]>(() => {
+    const saved = localStorage.getItem('focusflow_weekly_stats');
+    return saved ? JSON.parse(saved) : [
+      { id: '1', userId: 'user1', weekNumber: 13, totalFocus: 24, completedTasks: 45, performanceScore: 82 },
+      { id: '2', userId: 'user1', weekNumber: 14, totalFocus: 28, completedTasks: 52, performanceScore: 88 }
+    ];
   });
   const [settings, setSettings] = useState(() => {
     const saved = localStorage.getItem('focusflow_settings');
@@ -75,6 +93,18 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('focusflow_sessions', JSON.stringify(sessions));
   }, [sessions]);
+
+  useEffect(() => {
+    localStorage.setItem('focusflow_daily_logs', JSON.stringify(dailyLogs));
+  }, [dailyLogs]);
+
+  useEffect(() => {
+    localStorage.setItem('focusflow_habits', JSON.stringify(habits));
+  }, [habits]);
+
+  useEffect(() => {
+    localStorage.setItem('focusflow_weekly_stats', JSON.stringify(weeklyStats));
+  }, [weeklyStats]);
 
   useEffect(() => {
     localStorage.setItem('focusflow_settings', JSON.stringify(settings));
@@ -120,6 +150,38 @@ export default function App() {
     setSessions([newSession, ...sessions]);
   };
 
+  const addDailyLog = (logData: Omit<DailyLog, 'id' | 'userId' | 'createdAt'>) => {
+    const newLog: DailyLog = {
+      ...logData,
+      id: Math.random().toString(36).substr(2, 9),
+      userId: 'user1',
+      createdAt: Date.now()
+    };
+    setDailyLogs([newLog, ...dailyLogs]);
+    showNotification(t('saved'));
+  };
+
+  const addHabit = (name: string, targetDays: number) => {
+    const newHabit: Habit = {
+      id: Math.random().toString(36).substr(2, 9),
+      userId: 'user1',
+      name,
+      targetDays,
+      completedDays: 0,
+      createdAt: Date.now()
+    };
+    setHabits([newHabit, ...habits]);
+    showNotification(t('addHabit'));
+  };
+
+  const deleteHabit = (id: string) => {
+    setHabits(habits.filter(h => h.id !== id));
+  };
+
+  const updateHabit = (id: string, completedDays: number) => {
+    setHabits(habits.map(h => h.id === id ? { ...h, completedDays } : h));
+  };
+
   const sendMessage = (text: string, type: 'text' | 'image' | 'file' = 'text', url?: string, fileName?: string) => {
     const newMessage: ChatMessage = {
       id: Math.random().toString(36).substr(2, 9),
@@ -149,7 +211,10 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col md:flex-row h-screen w-full overflow-hidden bg-slate-950 font-sans text-slate-200">
+    <div className={cn(
+      "flex flex-col md:flex-row h-screen w-full overflow-hidden bg-slate-950 font-sans text-slate-200",
+      isRTL && "font-arabic"
+    )}>
       <Sidebar 
         activeTab={activeTab} 
         setActiveTab={(tab) => {
@@ -158,6 +223,7 @@ export default function App() {
         }} 
         onLogout={handleLogout}
         onInviteFriends={handleInviteFriends}
+        user={user}
       />
       
       <main className="flex-1 relative overflow-hidden flex flex-col pb-16 md:pb-0">
@@ -166,27 +232,49 @@ export default function App() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
         
         <header className="h-16 md:h-20 border-b border-white/5 flex items-center justify-between px-6 md:px-12 z-10 shrink-0 bg-slate-950/50 backdrop-blur-xl">
-          <div className="flex items-center gap-4">
+          <div className={cn("flex items-center gap-4", isRTL && "flex-row-reverse")}>
             <Logo size="sm" iconOnly className="md:hidden" />
-            <div className="flex flex-col">
-              <h1 className="text-sm md:text-base font-bold text-slate-200 capitalize tracking-tight">{activeTab}</h1>
+            <div className={cn("flex flex-col", isRTL && "items-end")}>
+              <h1 className="text-sm md:text-base font-bold text-slate-200 capitalize tracking-tight">
+                {t(activeTab as any)}
+              </h1>
               <p className="hidden md:block text-[10px] text-slate-500 font-medium uppercase tracking-widest">FocusFlow Workspace</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 md:gap-6">
+          <div className={cn("flex items-center gap-3 md:gap-6", isRTL && "flex-row-reverse")}>
+            <div className="hidden lg:flex items-center gap-1 p-1 bg-white/5 rounded-xl border border-white/10">
+              <button 
+                onClick={() => setLanguage('en')}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
+                  language === 'en' ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20" : "text-slate-500 hover:text-slate-300"
+                )}
+              >
+                EN
+              </button>
+              <button 
+                onClick={() => setLanguage('darija')}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
+                  language === 'darija' ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20" : "text-slate-500 hover:text-slate-300"
+                )}
+              >
+                DR
+              </button>
+            </div>
             <button 
               onClick={() => setIsAddTaskOpen(true)}
               className="flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-xl md:rounded-2xl font-bold text-xs md:text-sm transition-all shadow-xl shadow-brand-500/20 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">New Task</span>
+              <span className="hidden sm:inline">{t('newTask')}</span>
             </button>
             <button 
               onClick={() => setActiveTab('focus')}
               className="hidden sm:flex items-center gap-3 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full border border-white/10 transition-all cursor-pointer group"
             >
               <div className="w-2 h-2 bg-brand-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(14,165,233,0.5)] group-hover:scale-125 transition-transform" />
-              <span className="text-xs font-bold text-slate-300 tracking-wide">Live Session</span>
+              <span className="text-xs font-bold text-slate-300 tracking-wide">{t('liveSession')}</span>
             </button>
             <button 
               onClick={() => setActiveTab('settings')}
@@ -205,16 +293,24 @@ export default function App() {
               tasks={tasks}
               sessions={sessions}
               messages={messages}
+              dailyLogs={dailyLogs}
+              habits={habits}
+              weeklyStats={weeklyStats}
               addTask={addTask}
               toggleTask={toggleTask}
               deleteTask={deleteTask}
               updateTask={updateTask}
               sendMessage={sendMessage}
               handleSessionComplete={handleSessionComplete}
+              addDailyLog={addDailyLog}
+              addHabit={addHabit}
+              deleteHabit={deleteHabit}
+              updateHabit={updateHabit}
               setIsAddTaskOpen={setIsAddTaskOpen}
               onInviteFriends={handleInviteFriends}
               settings={settings}
               setSettings={setSettings}
+              user={user}
             />
           </div>
         </div>
@@ -252,7 +348,7 @@ export default function App() {
                 className="relative w-full max-w-md glass-card p-8 flex flex-col gap-6"
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold">Add New Task</h3>
+                  <h3 className="text-xl font-bold">{t('addTask')}</h3>
                   <button onClick={() => setIsAddTaskOpen(false)} className="text-slate-500 hover:text-white">
                     <Zap className="w-5 h-5 rotate-45" />
                   </button>
@@ -272,7 +368,7 @@ export default function App() {
                   className="flex flex-col gap-4"
                 >
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Task Title</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('taskTitle')}</label>
                     <input 
                       name="taskTitle"
                       autoFocus
@@ -281,21 +377,21 @@ export default function App() {
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Category</label>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('category')}</label>
                     <select 
                       name="taskCategory"
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500/50"
                     >
-                      <option value="work">Work</option>
-                      <option value="personal">Personal</option>
-                      <option value="urgent">Urgent</option>
+                      <option value="work">{t('work')}</option>
+                      <option value="personal">{t('personal')}</option>
+                      <option value="urgent">{t('urgent')}</option>
                     </select>
                   </div>
                   <button 
                     type="submit"
                     className="mt-4 w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-brand-500/20 transition-all"
                   >
-                    Create Task
+                    {t('createTask')}
                   </button>
                 </form>
               </motion.div>
@@ -304,5 +400,13 @@ export default function App() {
         </AnimatePresence>
       </main>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <I18nProvider>
+      <AppContent />
+    </I18nProvider>
   );
 }

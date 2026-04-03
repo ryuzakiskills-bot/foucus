@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Send, User, Hash, Users, Search, MoreVertical, Paperclip, Smile, Image as ImageIcon, File as FileIcon, X } from 'lucide-react';
-import EmojiPicker from 'emoji-picker-react';
+import { Send, User, Hash, Users, Search, MoreVertical, Paperclip, Image as ImageIcon, File as FileIcon, X } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -15,7 +14,6 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
   const [input, setInput] = useState('');
   const [activeChat, setActiveChat] = useState('general');
   const [selectedFile, setSelectedFile] = useState<{ file: File, type: 'image' | 'file', preview?: string } | null>(null);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -35,7 +33,6 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
       onSendMessage(input.trim(), 'text');
       setInput('');
     }
-    setShowEmojiPicker(false);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'file') => {
@@ -44,10 +41,6 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
       const preview = type === 'image' ? URL.createObjectURL(file) : undefined;
       setSelectedFile({ file, type, preview });
     }
-  };
-
-  const onEmojiClick = (emojiData: any) => {
-    setInput(prev => prev + emojiData.emoji);
   };
 
   const conversations = [
@@ -247,23 +240,11 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }: Cha
                 placeholder={selectedFile ? "Add a caption..." : "Type your message here..."}
                 className="flex-1 min-w-0 bg-transparent border-none outline-none text-sm text-slate-200 placeholder:text-slate-600"
               />
-              <button 
-                type="button" 
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className="p-1 hover:text-brand-400 transition-all text-slate-500 cursor-pointer"
-              >
-                <Smile className="w-5 h-5" />
-              </button>
               <button type="submit" className="p-2 bg-brand-500 rounded-xl hover:bg-brand-600 transition-all cursor-pointer shadow-lg shadow-brand-500/20">
                 <Send className="w-5 h-5" />
               </button>
             </div>
           </form>
-          {showEmojiPicker && (
-            <div className="absolute bottom-20 right-0 z-[100] shadow-2xl rounded-2xl overflow-hidden border border-white/10 w-full max-w-[350px]">
-              <EmojiPicker onEmojiClick={onEmojiClick} theme={'dark' as any} width="100%" height="350px" />
-            </div>
-          )}
         </div>
       </div>
     </div>

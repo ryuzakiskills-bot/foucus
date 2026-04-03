@@ -34,6 +34,8 @@ export default function Dashboard({
   handleSessionComplete, setIsAddTaskOpen, onInviteFriends, settings, setSettings 
 }: DashboardProps) {
 
+  const [performanceTimeframe, setPerformanceTimeframe] = React.useState<'daily' | 'weekly' | 'monthly'>('weekly');
+
   const totalFocusTime = sessions.filter(s => s.type === 'work').reduce((acc, s) => acc + s.duration, 0);
   const dailyGoal = 240; // 4 hours in minutes
   const progress = Math.min((totalFocusTime / dailyGoal) * 100, 100);
@@ -128,13 +130,25 @@ export default function Dashboard({
 
               <div className="flex-1 glass-card p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold">Weekly Performance</h3>
-                  <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-lg border border-white/10">
-                    <Calendar className="w-3 h-3 text-slate-500" />
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Last 7 Days</span>
+                  <h3 className="text-lg font-semibold capitalize">{performanceTimeframe} Performance</h3>
+                  <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl border border-white/10">
+                    {(['daily', 'weekly', 'monthly'] as const).map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => setPerformanceTimeframe(t)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer",
+                          performanceTimeframe === t 
+                            ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20" 
+                            : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
+                        )}
+                      >
+                        {t === 'daily' ? 'Today' : t === 'weekly' ? '7 Days' : '30 Days'}
+                      </button>
+                    ))}
                   </div>
                 </div>
-                <Analytics sessions={sessions} />
+                <Analytics sessions={sessions} timeframe={performanceTimeframe} />
               </div>
             </div>
 
